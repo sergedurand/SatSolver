@@ -1,8 +1,7 @@
 package sudoku;
 
 public class SudokuException extends Exception {
-	private String message;
-
+	
 	public SudokuException() {
 		// TODO Auto-generated constructor stub
 	}
