@@ -8,12 +8,26 @@ package sudoku;
 public class Sudoku {
 	
 	private int[][] grid = new int[9][9];
-	private int[][][] squares = new int[9][3][3];
+	private int[][][] squares = new int[9][3][3]; //redundant with the grid but helpful to test validity
+	
+	
 	
 	/**
-	 * Constructor from a list of integer. This only test size of input.
+	 * classic constructor
+	 * @param grid
+	 * @param squares
+	 */
+	public Sudoku(int[][] grid, int[][][] squares) {
+		super();
+		this.grid = grid;
+		this.squares = squares;
+	}
+
+
+	/**
+	 * Constructor from an array of integer. This only test size of input.
 	 * Doesn't test if input is a valid Sudoku.
-	 * Builds the 9x9 matrix and 9 3x3 matrix for the squares
+	 * Builds the 9x9 grid and 9 3x3 matrices for the squares
 	 * @param list_int
 	 * @throws SudokuException
 	 */
@@ -24,6 +38,7 @@ public class Sudoku {
 			int y = i%9;
 			this.grid[x][y] = list_int[i];
 			
+			//filling the squares
 			if(x<3) {
 				if(y<3) {
 					this.squares[0][x][y] = list_int[i];
@@ -68,6 +83,27 @@ public class Sudoku {
 		}
 	}
 	
+	
+
+	public int[][] getGrid() {
+		return grid;
+	}
+
+
+	public void setGrid(int[][] grid) {
+		this.grid = grid;
+	}
+
+
+	public int[][][] getSquares() {
+		return squares;
+	}
+
+
+	public void setSquares(int[][][] squares) {
+		this.squares = squares;
+	}
+
 
 	/**
 	 * Display the Sudoku as a grid:
@@ -113,7 +149,12 @@ public class Sudoku {
 		return (this.grid[x][y] == 0);
 	}
 	
-	public boolean lineIsValid(int[] line) {
+	/**
+	 * subroutine for checking validity of full grid
+	 * @param line
+	 * @return
+	 */
+	private boolean lineIsValid(int[] line) {
 		int total = 0;
 		for(int i = 0;i<9;i++) {
 			if(line[i] == 0) {return false;}
@@ -122,7 +163,12 @@ public class Sudoku {
 		return (total == 45);
 	}
 	
-	public boolean squareIsValid(int[][] square) {
+	/**
+	 * subroutine for checking validity of full grid
+	 * @param square
+	 * @return
+	 */
+	private boolean squareIsValid(int[][] square) {
 		int total = 0;
 		for(int i =0;i<3;i++) {
 			for(int j= 0;j<3;j++) {
@@ -133,7 +179,13 @@ public class Sudoku {
 		return(total == 45);
 	}
 	
-	public boolean columnIsValid(int c, int[][] matrix) {
+	/**
+	 * subroutine for checking validity of full grid
+	 * @param c
+	 * @param matrix
+	 * @return
+	 */
+	private boolean columnIsValid(int c, int[][] matrix) {
 		int total = 0;
 		for(int i = 0;i<9;i++) {
 			if(matrix[i][c] == 0) {return false;}
