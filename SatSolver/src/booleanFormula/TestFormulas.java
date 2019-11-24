@@ -13,10 +13,25 @@ public class TestFormulas {
 		try {
 			CNF formule = Tools.CNFfromDIMACS("petite_formule.cnf");
 			System.out.println(formule.toString());
+			System.out.println("test de creation de string depuis formule CNF");
+			Tools.DimacsFromCNF(formule, "petite_formule2", null);
+
 		} catch (CNFException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		
+		CNF formule2 = new CNF();
+		
+		try {
+			formule2 = Tools.CNFfromDIMACS("petite_formule2.cnf");
+		} catch (CNFException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		System.out.println("formule 2 : \n" + formule2.toString());
+		
 		int var = 0;
 		System.out.println(var);
 		int[] tab = new int[3];
@@ -42,9 +57,7 @@ public class TestFormulas {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		Literal[] lit = new Literal[9];
-		System.out.println("taille lit : "+lit.length);
+
 	}
 		
 

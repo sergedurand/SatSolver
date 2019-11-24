@@ -1,8 +1,10 @@
 package sudoku;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -57,6 +59,12 @@ public class Tools {
 	}
 
 	
+	/**
+	 * Load the dimacs file into a CNF
+	 * @param filename
+	 * @return
+	 * @throws CNFException
+	 */
 	public static CNF CNFfromDIMACS(String filename) throws CNFException {
 		CNF res = new CNF();
 		Clause.formula = res;
@@ -84,7 +92,7 @@ public class Tools {
 						int id_lit = Integer.parseInt(tab[i]);
 						Literal l = new Literal();
 						if(id_lit<0) {
-							id_lit = literals.length+id_lit-1;
+							id_lit = literals.length+id_lit;
 							l.setNeg(true);
 							if(literals[id_lit]==null) {
 								literals[id_lit] = l;
@@ -93,6 +101,7 @@ public class Tools {
 							
 						}else {
 							l.setNeg(false);
+							id_lit = id_lit-1;
 							if(literals[id_lit]==null) {
 								literals[id_lit] = l;
 								literals[id_lit].setId(var);
@@ -124,8 +133,41 @@ public class Tools {
 
 	}
 	
-	public void CNFtoDimacs(CNF formule) {
+	/**
+	 * save a CNF as a Dimacs file. Comments should be properly formatted or null
+	 * @param formule
+	 * @param filename
+	 * @param comments
+	 */
+	public static void DimacsFromCNF(CNF formule, String filename, String comments) {
+		String dimacs = "";
+		String path = "./"+filename+".cnf";
+		if(comments != null) {dimacs += comments;} //we assume comments are already in proper format
+		String first_line = "p cnf " + formule.getVariables().getSize() + " " + formule.getClauses().size() +"\n";
+		dimacs += first_line;
+		for(Clause c : formule.getClauses()) {
+			String line = "";
+			for(Integer i : c.getLiterals()) {
+				if(formule.literals[i].isNeg()) {
+					line += (-formule.literals[i].getId()-1) + " ";
+				}else {
+					line += (formule.literals[i].getId()+1) +" ";
+				}
+			}
+			line += "0\n";
+			dimacs += line;
+		}
+		
+		try (FileWriter writer = new FileWriter(path); BufferedWriter bw = new BufferedWriter(writer)){
+			bw.write(dimacs);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
+	
+	
 
 }

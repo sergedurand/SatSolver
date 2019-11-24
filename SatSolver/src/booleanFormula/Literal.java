@@ -75,9 +75,9 @@ public class Literal {
 	@Override
 	public String toString() {
 		if(this.isNeg) {
-			return "¬x"+id;
+			return "¬x"+(id+1);
 		}
-		return "x"+id;
+		return "x"+(id+1);
 	}
 	
 	/**
