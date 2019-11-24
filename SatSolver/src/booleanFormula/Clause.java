@@ -4,14 +4,18 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Clause {
+	
+	//store the literals used in the clause. Shouldn't have fixed length (not sure if true actually) so we use arraylist
 	private ArrayList<Literal> literals = new ArrayList<Literal>();
+	private static int count = 0;
 	private int id;
+	public static CNF formula;
 	
 	
-	public Clause(ArrayList<Literal> literals, int id) {
+	public Clause(ArrayList<Literal> literals) {
 		super();
 		this.literals = literals;
-		this.id = id;
+		this.id = count++;
 	}
 	public ArrayList<Literal> getLiterals() {
 		return literals;
@@ -22,9 +26,7 @@ public class Clause {
 	public int getId() {
 		return id;
 	}
-	public void setId(int id) {
-		this.id = id;
-	}
+
 	
 	@Override
 	public String toString() {
@@ -43,14 +45,15 @@ public class Clause {
 		this.literals.add(l);
 	}
 	
-	public static ArrayList<Clause> getRandomClauses(int nb_clauses,int max_nb_lit,int id){
+	//Only used for diverse tests.
+	public static ArrayList<Clause> getRandomClauses(int nb_clauses,int max_nb_lit){
+		
 		ArrayList<Clause> res = new ArrayList<Clause>();
 		int id_l = 0;
 		Random r = new Random();
 		for(int i = 0;i<nb_clauses;i++) {
 			int size = r.nextInt(max_nb_lit)+1;
-			res.add(new Clause(Literal.getRandomLiterals(size, id_l),id));
-			id++;
+			res.add(new Clause(Literal.getRandomLiterals(size, id_l)));
 			id_l += size;
 		}
 		

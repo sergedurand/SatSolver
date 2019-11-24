@@ -7,23 +7,33 @@ public class TestFormulas {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+				
 		
-		ArrayList<Clause> clauses = Clause.getRandomClauses(3, 4, 0);
-		
-		for(Clause c: clauses) {
-			System.out.println(c.toString());
+		int var = 0;
+		System.out.println(var);
+		int[] tab = new int[3];
+		tab[0] = 1;tab[1] = 1;tab[2] = 1;
+		Variables variables = new Variables(tab);
+		CNF phi = new CNF(variables);
+		Literal.formula = phi;
+		Literal l = new Literal(1,false);
+		Literal l2 = new Literal(0,true);
+		try {
+			System.out.println("valuation de l : "+l.getVal());
+			System.out.println("valuation de l2 : " + l2.getVal());
+		} catch (CNFException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
-		CNF phi = new CNF(clauses);
-		String line = "-1 5 3 4 0";
-		String[] tab = line.split(" +");
-		for(int i = 0;i<tab.length;i++) {
-			System.out.println(Integer.parseInt(tab[i]));
+		try {
+			phi.variables.setVal(0, 0);
+			phi.variables.setVal(1, 0);
+			System.out.println("valuation de l : "+l.getVal());
+			System.out.println("valuation de l2 : " + l2.getVal());
+		} catch (CNFException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
-		ArrayList<Literal> literals = new ArrayList<Literal>(20);
-		System.out.println(literals.get(5) == null);
-		
 	}
 		
 

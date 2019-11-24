@@ -57,7 +57,6 @@ public class Tools {
 	
 	public static CNF CNFfromDIMACS(String filename) {
 		CNF res = new CNF();
-		int id_clause = 0;
 		int nb_var = 0;
 		Literal[] literals;
 		try(BufferedReader br = new BufferedReader((new FileReader(filename)))) {
