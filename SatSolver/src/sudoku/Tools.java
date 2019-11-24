@@ -202,6 +202,7 @@ public class Tools {
 		
 		
 		//we create 81 clauses: each cell must have a value between 1 and 9
+		int nb_definedness = 0;
 		// = definedness clauses
 		for(int i = 0;i<grid.length;i++){
 			for(int j = 0;j<grid.length;j++) {
@@ -216,13 +217,16 @@ public class Tools {
 				clauses.add(c);
 			}
 		}
+		nb_definedness = clauses.size();
 		
+		System.out.println("Definedness clauses = "+nb_definedness);
+		int nb_uniq = 0;
 		// uniqueness clauses
 		for(int i = 0; i<9;i++) {
 			for(int j = 0;j<9;j++) {
 				for(int k = 0;k<9;k++) {
 					int index1 = (i*9+j)*9+k;
-					for(int k2 = k+1;k<9;k++) {
+					for(int k2 = k+1;k2<9;k2++) {
 						Clause c = new Clause();
 						int index2 = (i*9+j)*9+k2;
 						//we know both literals are negative
@@ -237,13 +241,16 @@ public class Tools {
 						variables.addClause(c.getId(), index1);
 						variables.addClause(c.getId(), index2);
 						clauses.add(c);
+						nb_uniq++;
 					}
 				}
 			}
 		}
 		
+		System.out.println("Unique clauses = " + nb_uniq);
 		//validity clauses
 		
+		int nb_l = 0;
 		for(int i1 = 0;i1<9;i1++) { //for each line
 			for(int i=0;i<9;i++) {
 				for(int j = i+1;j<9;j++) {
@@ -261,12 +268,16 @@ public class Tools {
 						variables.addClause(c.getId(), index1);
 						variables.addClause(c.getId(), index2);
 						clauses.add(c);	
+						nb_l++;
 					}
 				}
 				
 			}
 		}
 		
+		System.out.println("Validity on lines : "+nb_l);
+		
+		int nb_c = 0;
 		for(int j1 = 0;j1<9;j1++) { //for each column
 			for(int i=0;i<9;i++) {
 				for(int j = i+1;j<9;j++) {
@@ -284,12 +295,16 @@ public class Tools {
 						variables.addClause(c.getId(), index1);
 						variables.addClause(c.getId(), index2);
 						clauses.add(c);	
+						nb_c ++;
 					}
 				}
 				
 			}
 		}
 		
+		System.out.println("validity on columns " + nb_c);
+		
+		int nb_s = 0;
 		for(int x = 0;x<3;x++) {
 			for(int y=0;y<3;y++) { //browsing the "squares"
 				for(int k = 0;k<9;k++) {
@@ -311,12 +326,16 @@ public class Tools {
 							variables.addClause(c.getId(), index1);
 							variables.addClause(c.getId(), index2);
 							clauses.add(c);	
+							nb_s ++;
 						}
 					}
 				}
 			}
 		}
 		
+		System.out.println("Validity on squares" + nb_s);
+		System.out.println("total = " + (nb_s+nb_c+nb_l+nb_uniq+nb_definedness));
+		System.out.println("total clause = "+clauses.size());
 		res.setClauses(clauses);
 		res.setVariables(variables);
 		res.setLiterals(literals);

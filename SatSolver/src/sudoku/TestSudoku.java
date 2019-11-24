@@ -18,9 +18,7 @@ public class TestSudoku {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		formule.printStat();
-		formule.literals[100].printFreq();
+
 		
 	}
 
