@@ -38,7 +38,9 @@ public class CNF {
 	}
 		
 	
-	
+	public void setLiterals(Literal[] literals) {
+		this.literals = literals;
+	}
 	public Variables getVariables() {
 		return variables;
 	}

@@ -168,6 +168,194 @@ public class Tools {
 		
 	}
 	
+	/**
+	 * return a CNF from a Sudoku
+	 * See details of encoding here :
+	 * https://www.lri.fr/~conchon/ENSPSaclay/project/A_SAT-based_Sudoku_solver.pdf
+	 * @param s
+	 * @return
+	 * @throws CNFException 
+	 */
+	public static CNF CNFfromSudoku(Sudoku s) throws CNFException {
+		Variables variables = new Variables(729);
+		Clause.resetCounter(); //in case other formula was created before
+		//convention : variables[0:9] contains the 9 possible value for cell [0][0]
+		//variable [0:81] contains the 9 possible values for each cell in the first line
+		//etc.
+		CNF res = new CNF();
+
+		Literal[] literals = new Literal[729*2];
+		//we initiate valuation from Sudoku grid
+		ArrayList<Clause> clauses = new ArrayList<Clause>();
+		int[][] grid = s.getGrid();
+		for(int i = 0;i<grid.length;i++) {
+			for(int j = 0;j<grid.length;j++) {
+				if(!s.isEmpty(i, j)) {
+					for(int k = 0;k<9;k++) {
+						//k is between 0 and 8 but the values of sudoku grid are between 1 and 9
+						if(k == grid[i][j]+1) {variables.setVal((i*9+j)*9+k,1);} 
+						else {variables.setVal((i*9+j)*9+k,0);}					
+					}
+				}
+			}
+		}
+		
+		
+		//we create 81 clauses: each cell must have a value between 1 and 9
+		// = definedness clauses
+		for(int i = 0;i<grid.length;i++){
+			for(int j = 0;j<grid.length;j++) {
+				Clause c = new Clause();
+				for(int k =0;k<grid.length;k++) {
+					int index = (i*9+j)*9+k;
+					literals[index] = new Literal((i*9+j)*9+k,false);
+					literals[index].addClause(c.getId());
+					variables.addClause(c.getId(), index);
+					c.addLiteral(index);
+				}
+				clauses.add(c);
+			}
+		}
+		
+		// uniqueness clauses
+		for(int i = 0; i<9;i++) {
+			for(int j = 0;j<9;j++) {
+				for(int k = 0;k<9;k++) {
+					int index1 = (i*9+j)*9+k;
+					for(int k2 = k+1;k<9;k++) {
+						Clause c = new Clause();
+						int index2 = (i*9+j)*9+k2;
+						//we know both literals are negative
+						int index1_literal = literals.length-index1;
+						int index2_literal = literals.length-index2;
+						literals[index1_literal] = new Literal(index1,true);
+						literals[index2_literal] = new Literal(index2,true);
+						c.addLiteral(index1_literal);
+						c.addLiteral(index2_literal);
+						literals[index1_literal].addClause(c.getId());
+						literals[index2_literal].addClause(c.getId());
+						variables.addClause(c.getId(), index1);
+						variables.addClause(c.getId(), index2);
+						clauses.add(c);
+					}
+				}
+			}
+		}
+		
+		//validity clauses
+		
+		for(int i1 = 0;i1<9;i1++) { //for each line
+			for(int i=0;i<9;i++) {
+				for(int j = i+1;j<9;j++) {
+					for(int d = 0;d<9;d++) {
+						Clause c = new Clause();
+						//literals are negative : xi != d = not(xi=d)
+						int index1 = (i1*9+i)*9+d;
+						int index2 = (i1*9+j)*9+d;
+						int index1_literal = literals.length-index1;
+						int index2_literal = literals.length-index2;
+						literals[index1_literal] = new Literal(index1,true);
+						literals[index2_literal] = new Literal(index2,true);
+						c.addLiteral(index1_literal);
+						c.addLiteral(index2_literal);
+						variables.addClause(c.getId(), index1);
+						variables.addClause(c.getId(), index2);
+						clauses.add(c);	
+					}
+				}
+				
+			}
+		}
+		
+		for(int j1 = 0;j1<9;j1++) { //for each column
+			for(int i=0;i<9;i++) {
+				for(int j = i+1;j<9;j++) {
+					for(int d = 0;d<9;d++) {
+						Clause c = new Clause();
+						//literals are negative : xi != d = not(xi=d)
+						int index1 = (i*9+j1)*9+d;
+						int index2 = (j*9+j1)*9+d;
+						int index1_literal = literals.length-index1;
+						int index2_literal = literals.length-index2;
+						literals[index1_literal] = new Literal(index1,true);
+						literals[index2_literal] = new Literal(index2,true);
+						c.addLiteral(index1_literal);
+						c.addLiteral(index2_literal);
+						variables.addClause(c.getId(), index1);
+						variables.addClause(c.getId(), index2);
+						clauses.add(c);	
+					}
+				}
+				
+			}
+		}
+		
+		for(int x = 0;x<3;x++) {
+			for(int y=0;y<3;y++) { //browsing the "squares"
+				for(int k = 0;k<9;k++) {
+					for(int k2=k+1;k2<9;k2++) {
+						int i1 = (x+k)/3;
+						int j1 = (y*3) + k%3;
+						int i2 = (x+k2)/3;
+						int j2 = (y*3) + k2%3;
+						for(int d = 0;d<9;d++) {
+							Clause c = new Clause();
+							int index1 = (i1*9+j1)*9+d;
+							int index2 = (i2*9+j2)*9+d;
+							int index1_literal = literals.length-index1;
+							int index2_literal = literals.length-index2;
+							literals[index1_literal] = new Literal(index1,true);
+							literals[index2_literal] = new Literal(index2,true);
+							c.addLiteral(index1_literal);
+							c.addLiteral(index2_literal);
+							variables.addClause(c.getId(), index1);
+							variables.addClause(c.getId(), index2);
+							clauses.add(c);	
+						}
+					}
+				}
+			}
+		}
+		
+		res.setClauses(clauses);
+		res.setVariables(variables);
+		res.setLiterals(literals);
+		Literal.formula = res;
+		Clause.formula = res;
+		
+		return res;
+		
+	}
+	
+	
+	/**
+	 * return a Sudoku grid form a CNF formula 
+	 * (only uses variables valuation)
+	 * @param formule
+	 * @return
+	 * @throws SudokuException
+	 * @throws CNFException
+	 */
+	public static Sudoku SudokuFromCNF(CNF formule) throws SudokuException, CNFException {
+		if(formule.variables.getSize() != 729) {
+			throw new SudokuException("The formula doesn't have proper size. It should have 729 variables");
+		}
+		
+		int[] grid = new int[81];
+		for(int i = 0;i<9;i++) {
+			for(int j = 0;j<9;j++) {
+				for(int k = 0; k<9;k++) {
+					if(formule.getVariables().getVal((i*9+j)*9+k) == 1) {
+						grid[i*9+j] = k;
+					}
+				}
+			}
+		}
+		
+		return new Sudoku(grid);
+	
+	}
+	
 	
 
 }

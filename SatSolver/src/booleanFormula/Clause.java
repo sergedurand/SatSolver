@@ -34,7 +34,9 @@ public class Clause {
 		this.literals.add(lit_id);
 	}
 
-	
+	public static void resetCounter() {
+		count = 0;
+	}
 	@Override
 	public String toString() {
 		String res = "(";
