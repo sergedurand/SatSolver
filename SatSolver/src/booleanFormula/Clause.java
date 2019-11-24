@@ -39,7 +39,8 @@ public class Clause {
 	public String toString() {
 		String res = "(";
 		for(int i = 0;i<literals.size();i++) {
-			res += formula.literals[i].toString();
+			int l_id = literals.get(i);
+			res += formula.literals[l_id].toString();
 			if(i!=literals.size()-1) {
 				res += " "+ "v"+" ";
 			}

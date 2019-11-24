@@ -75,7 +75,6 @@ public class Tools {
 					Variables variables = new Variables(nb_var);
 					res.setVariables(variables);
 					literals = new Literal[nb_var*2];
-					System.out.println("nb literals = "+literals.length);
 				}
 				else { //reading the clauses
 					String[] tab = line.split(" +");
@@ -101,8 +100,6 @@ public class Tools {
 						}
 						
 						literals[id_lit].addClause(cl.getId());
-						System.out.println(res.variables.getSize());
-						System.out.println("var = "+var);
 						res.variables.addClause(cl.getId(), var);
 						cl.addLiteral(id_lit);	
 					}
@@ -122,8 +119,13 @@ public class Tools {
 		}
 		
 		res.literals =literals;
+
 		return res;
 
+	}
+	
+	public void CNFtoDimacs(CNF formule) {
+		
 	}
 
 }
