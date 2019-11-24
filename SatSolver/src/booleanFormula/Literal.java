@@ -2,6 +2,7 @@ package booleanFormula;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * 
@@ -14,9 +15,11 @@ public class Literal {
 	private boolean isNeg = false;
 	//contains the list of clauses that uses the literal
 	//as clauses should have unique ID maybe a priority queue would be better for efficiency
-	private ArrayList<Integer> clauses = new ArrayList<Integer>(); 
+	private PriorityBlockingQueue<Integer> clauses = new PriorityBlockingQueue<Integer>(); 
 	
-	
+	public Literal () {
+		super();
+	}
 	public Literal(int id, boolean isNeg) {
 		super();
 		this.id = id;
@@ -32,6 +35,7 @@ public class Literal {
 	public void setId(int id) {
 		this.id = id;
 	}
+	
 
 
 	public boolean isNeg() {
@@ -56,6 +60,13 @@ public class Literal {
 		if(var_val == -1) {return var_val;}
 		if(isNeg) {return 1-var_val;}
 		else return var_val;
+	}
+	
+	public void addClause(int clause_ID) {
+		if(!this.clauses.contains(clause_ID)) {
+			this.clauses.add(clause_ID);
+		}
+		return;
 	}
 	
 	/**

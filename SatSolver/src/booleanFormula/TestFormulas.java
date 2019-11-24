@@ -3,12 +3,20 @@ package booleanFormula;
 import java.util.ArrayList;
 import java.util.Random;
 
+import sudoku.Tools;
+
 public class TestFormulas {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 				
-		
+		try {
+			CNF formule = Tools.CNFfromDIMACS("petite_formule.cnf");
+			System.out.println(formule.toString());
+		} catch (CNFException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		int var = 0;
 		System.out.println(var);
 		int[] tab = new int[3];
@@ -34,6 +42,9 @@ public class TestFormulas {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		Literal[] lit = new Literal[9];
+		System.out.println("taille lit : "+lit.length);
 	}
 		
 

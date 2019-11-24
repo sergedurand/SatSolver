@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import booleanFormula.CNF;
+import booleanFormula.CNFException;
 import booleanFormula.Clause;
 import booleanFormula.Literal;
+import booleanFormula.Variables;
 
 public class Tools {
 	public Tools() {
@@ -55,30 +57,56 @@ public class Tools {
 	}
 
 	
-	public static CNF CNFfromDIMACS(String filename) {
+	public static CNF CNFfromDIMACS(String filename) throws CNFException {
 		CNF res = new CNF();
+		Clause.formula = res;
+		Literal.formula = res;
 		int nb_var = 0;
-		Literal[] literals;
+		Literal[] literals = null;
 		try(BufferedReader br = new BufferedReader((new FileReader(filename)))) {
 			String line;
 			while((line = br.readLine())!=null) {
 				if(line.charAt(0) == 'c') { //skipping comments
 					continue;
 				}
-				if(line.charAt(0)== 'p') {
+				if(line.charAt(0)== 'p') {//initializing from first line
 					String[] tab = line.split(" +");
 					nb_var = Integer.parseInt(tab[2]);
+					Variables variables = new Variables(nb_var);
+					res.setVariables(variables);
 					literals = new Literal[nb_var*2];
+					System.out.println("nb literals = "+literals.length);
 				}
 				else { //reading the clauses
 					String[] tab = line.split(" +");
-					for(int i = 0;i<tab.length;i++) {
-						int id_lit = Integer.parseInt(tab[i]);
-						if(id_lit<0) {
-							
-						}
-					}
 					Clause cl = new Clause();
+					for(int i = 0;i<tab.length-1;i++) {//browsing the literals
+						int var = Math.abs(Integer.parseInt(tab[i]))-1;
+						int id_lit = Integer.parseInt(tab[i]);
+						Literal l = new Literal();
+						if(id_lit<0) {
+							id_lit = literals.length+id_lit-1;
+							l.setNeg(true);
+							if(literals[id_lit]==null) {
+								literals[id_lit] = l;
+								literals[id_lit].setId(var);
+							}
+							
+						}else {
+							l.setNeg(false);
+							if(literals[id_lit]==null) {
+								literals[id_lit] = l;
+								literals[id_lit].setId(var);
+							}
+						}
+						
+						literals[id_lit].addClause(cl.getId());
+						System.out.println(res.variables.getSize());
+						System.out.println("var = "+var);
+						res.variables.addClause(cl.getId(), var);
+						cl.addLiteral(id_lit);	
+					}
+					res.addClause(cl);
 				}
 				
 				
@@ -92,6 +120,10 @@ public class Tools {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		res.literals =literals;
+		return res;
+
 	}
 
 }

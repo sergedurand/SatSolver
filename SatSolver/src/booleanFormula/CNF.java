@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class CNF {
 	private ArrayList<Clause> clauses = new ArrayList<Clause>();
 	public Variables variables; //index is the number of the variable. Value : 0 if valuation to false, 1 to true, -1 if no valuation
-	
+	public Literal[] literals; //literal xi is stored in literals[i] and literal not(xi) is stored in literal[literals.length-i]
 	public CNF() {
 		super();
 	}
