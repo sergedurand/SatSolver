@@ -81,11 +81,11 @@ public class Literal {
 	}
 	
 	public double getFreq() {
-		return (this.clauses.size()/formula.getClauses().size());
+		return (this.clauses.size()/(double)formula.getClauses().size());
 	}
 	
 	public void printFreq() {
-		System.out.printf("Literal frequency in the formula (i.e. nb of clauses containing l / total clauses) = %d",this.getFreq());
+		System.out.printf(this.toString() + " frequency = %.2f %%",this.getFreq()*100);
 	}
 	
 	/**

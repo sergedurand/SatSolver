@@ -20,6 +20,7 @@ public class TestSudoku {
 		}
 		
 		formule.printStat();
+		formule.literals[100].printFreq();
 		
 	}
 
