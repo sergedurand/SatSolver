@@ -226,8 +226,8 @@ public class Tools {
 						Clause c = new Clause();
 						int index2 = (i*9+j)*9+k2;
 						//we know both literals are negative
-						int index1_literal = literals.length-index1;
-						int index2_literal = literals.length-index2;
+						int index1_literal = literals.length-index1-1;
+						int index2_literal = literals.length-index2-1;
 						literals[index1_literal] = new Literal(index1,true);
 						literals[index2_literal] = new Literal(index2,true);
 						c.addLiteral(index1_literal);
@@ -252,8 +252,8 @@ public class Tools {
 						//literals are negative : xi != d = not(xi=d)
 						int index1 = (i1*9+i)*9+d;
 						int index2 = (i1*9+j)*9+d;
-						int index1_literal = literals.length-index1;
-						int index2_literal = literals.length-index2;
+						int index1_literal = literals.length-index1-1;
+						int index2_literal = literals.length-index2-1;
 						literals[index1_literal] = new Literal(index1,true);
 						literals[index2_literal] = new Literal(index2,true);
 						c.addLiteral(index1_literal);
@@ -275,8 +275,8 @@ public class Tools {
 						//literals are negative : xi != d = not(xi=d)
 						int index1 = (i*9+j1)*9+d;
 						int index2 = (j*9+j1)*9+d;
-						int index1_literal = literals.length-index1;
-						int index2_literal = literals.length-index2;
+						int index1_literal = literals.length-index1-1;
+						int index2_literal = literals.length-index2-1;
 						literals[index1_literal] = new Literal(index1,true);
 						literals[index2_literal] = new Literal(index2,true);
 						c.addLiteral(index1_literal);
@@ -302,8 +302,8 @@ public class Tools {
 							Clause c = new Clause();
 							int index1 = (i1*9+j1)*9+d;
 							int index2 = (i2*9+j2)*9+d;
-							int index1_literal = literals.length-index1;
-							int index2_literal = literals.length-index2;
+							int index1_literal = literals.length-index1-1;
+							int index2_literal = literals.length-index2-1;
 							literals[index1_literal] = new Literal(index1,true);
 							literals[index2_literal] = new Literal(index2,true);
 							c.addLiteral(index1_literal);

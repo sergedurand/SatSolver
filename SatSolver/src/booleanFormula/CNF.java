@@ -63,5 +63,15 @@ public class CNF {
 		return res;
 	}
 	
+	public void printStat() {
+		System.out.println("Number of clauses = " + this.clauses.size());
+		System.out.println("Number of variables = " + this.getVariables().getSize());
+		int nb_lit = 0;
+		for(int i = 0;i<literals.length;i++) {
+			if(literals[i] != null) {nb_lit++;}
+		}
+		System.out.println("Number of literals = " +nb_lit);
+	}
+	
 	//TODO : list of stats on literals and variables
 }

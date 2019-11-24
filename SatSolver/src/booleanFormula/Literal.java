@@ -75,9 +75,17 @@ public class Literal {
 	@Override
 	public String toString() {
 		if(this.isNeg) {
-			return "¬x"+(id+1);
+			return "ï¿½x"+(id+1);
 		}
 		return "x"+(id+1);
+	}
+	
+	public double getFreq() {
+		return (this.clauses.size()/formula.getClauses().size());
+	}
+	
+	public void printFreq() {
+		System.out.printf("Literal frequency in the formula (i.e. nb of clauses containing l / total clauses) = %d",this.getFreq());
 	}
 	
 	/**

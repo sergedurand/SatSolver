@@ -1,5 +1,6 @@
 package sudoku;
 
+import booleanFormula.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -10,7 +11,15 @@ public class TestSudoku {
 
 		ArrayList<Sudoku> list_sudokus = Tools.ListSudokuFromFile("puzzles.sdk.txt");
 		
-		System.out.println(list_sudokus.get(100));
+		CNF formule = new CNF();
+		try {
+			formule = Tools.CNFfromSudoku(list_sudokus.get(145));
+		} catch (CNFException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		formule.printStat();
 		
 	}
 
