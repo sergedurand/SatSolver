@@ -6,11 +6,11 @@ import java.util.Random;
 
 public class TestSudoku {
 
-	public static void main(String[] args) throws SudokuException {
+	public static void main(String[] args) throws SudokuException, CNFException {
 		// TODO Auto-generated method stub
 
 		ArrayList<Sudoku> list_sudokus = Tools.ListSudokuFromFile("puzzles.sdk.txt");
-		System.out.println(list_sudokus.get(45).toString());
+		System.out.println(list_sudokus.get(3).toString());
 		
 		CNF formule = new CNF();
 		try {
@@ -20,9 +20,12 @@ public class TestSudoku {
 			e.printStackTrace();
 		}
 		
-		Tools.DimacsFromCNF(formule, "sudoku4", null);
 
-		System.out.println(formule.getClauses().get(10000));
+		
+		Tools.DimacsFromCNF(formule, "sudoku4", null);
+		
+	
+		
 	}
 
 }

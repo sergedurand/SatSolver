@@ -80,6 +80,18 @@ public class Literal {
 		return "x"+(id+1);
 	}
 	
+	public String sudToString() {
+		//printing literal using https://www.lri.fr/~conchon/ENSPSaclay/project/A_SAT-based_Sudoku_solver.pdf conventions
+		int i = id/81 +1;
+		int j = (id/9)%9+1;
+		int k = id-((i-1)*9+(j-1))*9 +1;
+		String id1 = i+""+j+""+k;
+		if(this.isNeg) {
+			return "\u00AC"+"x"+(id1);
+		}
+		return "x"+(id1);
+	}
+	
 	public double getFreq() {
 		return (this.clauses.size()/(double)formula.getClauses().size());
 	}

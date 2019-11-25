@@ -51,6 +51,19 @@ public class Clause {
 		return res;
 	}
 	
+	public String sudToString() {
+		String res = "(";
+		for(int i = 0;i<literals.size();i++) {
+			int l_id = literals.get(i);
+			res += formula.literals[l_id].sudToString();
+			if(i!=literals.size()-1) {
+				res += " "+ "v"+" ";
+			}
+		}
+		res += ")";
+		return res;
+	}
+	
 
 	
 }

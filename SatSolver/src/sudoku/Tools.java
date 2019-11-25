@@ -148,11 +148,16 @@ public class Tools {
 		for(Clause c : formule.getClauses()) {
 			String line = "";
 			for(Integer i : c.getLiterals()) {
+				String lit_id = formule.literals[i].sudToString();
+				String res = "";
 				if(formule.literals[i].isNeg()) {
-					line += (-formule.literals[i].getId()-1) + " ";
+					res += "-" + lit_id.charAt(2) + lit_id.charAt(3) + lit_id.charAt(4);
 				}else {
-					line += (formule.literals[i].getId()+1) +" ";
+					res += lit_id.charAt(1) + lit_id.charAt(2) + lit_id.charAt(3);
 				}
+				res += " ";
+				line += res;
+
 			}
 			line += "0\n";
 			dimacs += line;
@@ -193,7 +198,7 @@ public class Tools {
 				if(!s.isEmpty(i, j)) {
 					for(int k = 0;k<9;k++) {
 						//k is between 0 and 8 but the values of sudoku grid are between 1 and 9
-						if(k == grid[i][j]+1) {variables.setVal((i*9+j)*9+k,1);} 
+						if(k +1 == grid[i][j]) {variables.setVal((i*9+j)*9+k,1);} 
 						else {variables.setVal((i*9+j)*9+k,0);}					
 					}
 				}
@@ -202,34 +207,34 @@ public class Tools {
 		
 		
 		//unit clauses:
-		for(int i = 0;i<9;i++) {
-			for(int j = 0;j<9;j++) {
-				if(grid[i][j] == 0) {continue;}
-				for(int k = 0;k<9;k++) {
-					Clause c = new Clause();
-					int index = (i*9+j)*9+k;
-					if(variables.getVal(index)==1) {
-						literals[index] = new Literal(index,false);
-						literals[index].addClause(c.getId());
-						c.addLiteral(index);
-					}
-					else {
-						index = literals.length-index-1;
-						literals[index] = new Literal(index,false);
-						literals[index].addClause(c.getId());
-						c.addLiteral(index);
-					}
-					clauses.add(c);
-				}
-			}
-		}
+//		for(int i = 0;i<9;i++) {
+//			for(int j = 0;j<9;j++) {
+//				if(grid[i][j] == 0) {continue;}
+//				for(int k = 0;k<9;k++) {
+//					Clause c = new Clause();
+//					int index = (i*9+j)*9+k;
+//					if(variables.getVal(index)==1) {
+//						literals[index] = new Literal(index,false);
+//						literals[index].addClause(c.getId());
+//						c.addLiteral(index);
+//					}
+//					else {
+//						index = literals.length-index-1;
+//						literals[index] = new Literal(index,false);
+//						literals[index].addClause(c.getId());
+//						c.addLiteral(index);
+//					}
+//					clauses.add(c);
+//				}
+//			}
+//		}
 		
 		//we create 81 clauses: each cell must have a value between 1 and 9
 		int nb_definedness = 0;
 		// = definedness clauses
 		for(int i = 0;i<grid.length;i++){
 			for(int j = 0;j<grid.length;j++) {
-				if(grid[i][j] != 0) {continue ;}
+				// if(grid[i][j] != 0) {continue ;}
 				Clause c = new Clause();
 				for(int k =0;k<grid.length;k++) {
 					int index = (i*9+j)*9+k;
@@ -248,7 +253,7 @@ public class Tools {
 		// uniqueness clauses
 		for(int i = 0; i<9;i++) {
 			for(int j = 0;j<9;j++) {
-				if(grid[i][j] != 0) {continue ;}
+				// if(grid[i][j] != 0) {continue ;}
 				for(int k = 0;k<9;k++) {
 					int index1 = (i*9+j)*9+k;
 					for(int k2 = k+1;k2<9;k2++) {
@@ -273,7 +278,7 @@ public class Tools {
 		}
 		
 		System.out.println("Unique clauses = " + nb_uniq);
-		//validity clauses
+		//validity clauses for lines
 		
 		int nb_l = 0;
 		for(int i1 = 0;i1<9;i1++) { //for each line
@@ -303,7 +308,9 @@ public class Tools {
 		System.out.println("Validity on lines : "+nb_l);
 		
 		int nb_c = 0;
-		for(int j1 = 0;j1<9;j1++) { //for each column
+		
+		//validity for columns
+		for(int j1 = 0;j1<9;j1++) { 
 			for(int i=0;i<9;i++) {
 				for(int j = i+1;j<9;j++) {
 					for(int d = 0;d<9;d++) {
@@ -330,8 +337,10 @@ public class Tools {
 		System.out.println("validity on columns " + nb_c);
 		
 		int nb_s = 0;
+		
+		//validity for cell blocks
 		for(int x = 0;x<3;x++) {
-			for(int y=0;y<3;y++) { //browsing the "squares"
+			for(int y=0;y<3;y++) {
 				for(int k = 0;k<9;k++) {
 					for(int k2=k+1;k2<9;k2++) {
 						int i1 = (x+k)/3;
@@ -390,7 +399,7 @@ public class Tools {
 			for(int j = 0;j<9;j++) {
 				for(int k = 0; k<9;k++) {
 					if(formule.getVariables().getVal((i*9+j)*9+k) == 1) {
-						grid[i*9+j] = k;
+						grid[i*9+j] = k+1;
 					}
 				}
 			}
