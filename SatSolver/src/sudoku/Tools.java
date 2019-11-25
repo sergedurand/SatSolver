@@ -201,11 +201,35 @@ public class Tools {
 		}
 		
 		
+		//unit clauses:
+		for(int i = 0;i<9;i++) {
+			for(int j = 0;j<9;j++) {
+				if(grid[i][j] == 0) {continue;}
+				for(int k = 0;k<9;k++) {
+					Clause c = new Clause();
+					int index = (i*9+j)*9+k;
+					if(variables.getVal(index)==1) {
+						literals[index] = new Literal(index,false);
+						literals[index].addClause(c.getId());
+						c.addLiteral(index);
+					}
+					else {
+						index = literals.length-index-1;
+						literals[index] = new Literal(index,false);
+						literals[index].addClause(c.getId());
+						c.addLiteral(index);
+					}
+					clauses.add(c);
+				}
+			}
+		}
+		
 		//we create 81 clauses: each cell must have a value between 1 and 9
 		int nb_definedness = 0;
 		// = definedness clauses
 		for(int i = 0;i<grid.length;i++){
 			for(int j = 0;j<grid.length;j++) {
+				if(grid[i][j] != 0) {continue ;}
 				Clause c = new Clause();
 				for(int k =0;k<grid.length;k++) {
 					int index = (i*9+j)*9+k;
@@ -224,6 +248,7 @@ public class Tools {
 		// uniqueness clauses
 		for(int i = 0; i<9;i++) {
 			for(int j = 0;j<9;j++) {
+				if(grid[i][j] != 0) {continue ;}
 				for(int k = 0;k<9;k++) {
 					int index1 = (i*9+j)*9+k;
 					for(int k2 = k+1;k2<9;k2++) {
@@ -333,7 +358,7 @@ public class Tools {
 			}
 		}
 		
-		System.out.println("Validity on squares" + nb_s);
+		System.out.println("Validity on squares " + nb_s);
 		System.out.println("total = " + (nb_s+nb_c+nb_l+nb_uniq+nb_definedness));
 		System.out.println("total clause = "+clauses.size());
 		res.setClauses(clauses);

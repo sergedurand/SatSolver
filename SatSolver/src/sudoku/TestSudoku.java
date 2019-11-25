@@ -22,7 +22,7 @@ public class TestSudoku {
 		
 		Tools.DimacsFromCNF(formule, "sudoku4", null);
 
-		System.out.println(formule.getClauses().get(11000));
+		System.out.println(formule.getClauses().get(10000));
 	}
 
 }
