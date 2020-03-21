@@ -85,6 +85,7 @@ public class Tools {
 					literals = new Literal[nb_var*2];
 				}
 				else { //reading the clauses
+					line = line.trim().replaceAll(" +", " "); // clean all spaces
 					String[] tab = line.split(" +");
 					Clause cl = new Clause();
 					for(int i = 0;i<tab.length-1;i++) {//browsing the literals

@@ -10,9 +10,14 @@ public class TestFormulas {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		int[][] tab = new int[10][10];
-		tab[3][1] = 2;
-		System.out.println(tab[2][2]);
+		try {
+			CNF phi = Tools.CNFfromDIMACS("petite_formule.cnf");
+			System.out.println(phi.toString());
+		} catch (CNFException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	
 	

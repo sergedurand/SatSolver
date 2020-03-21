@@ -5,7 +5,6 @@ public class CNFException extends Exception {
 	public CNFException() {
 		// TODO Auto-generated constructor stub
 	}
-
 	public CNFException(String arg0) {
 		super(arg0);
 		// TODO Auto-generated constructor stub

@@ -63,6 +63,21 @@ public class CNF {
 		return res;
 	}
 	
+	/**
+	 * Check if the formula is valid with current variable assignment
+	 * throws an exception if there are unassigned variables
+	 * @return
+	 * @throws CNFException 
+	 */
+	public boolean isValid() throws CNFException {
+		for(Clause c : this.clauses) {
+			if(!c.isValid()){
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	public void printStat() {
 		System.out.println("Number of clauses = " + this.clauses.size());
 		System.out.println("Number of variables = " + this.getVariables().getSize());

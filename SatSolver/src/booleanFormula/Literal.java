@@ -53,10 +53,10 @@ public class Literal {
 	 * @throws CNFException
 	 */
 	public int getVal() throws CNFException {
-		if(this.formula == null) {
+		if(Literal.formula == null) {
 			throw new CNFException("this literal " + this.id +" isn't assigned to any formula");
 		}
-		int var_val =  this.formula.variables.getVal(this.id);
+		int var_val =  Literal.formula.variables.getVal(this.id);
 		if(var_val == -1) {return var_val;}
 		if(isNeg) {return 1-var_val;}
 		else return var_val;

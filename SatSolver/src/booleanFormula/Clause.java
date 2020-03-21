@@ -37,6 +37,20 @@ public class Clause {
 	public static void resetCounter() {
 		count = 0;
 	}
+	
+	public boolean isValid() throws CNFException {
+		for(Integer i : this.literals) {
+			int val = this.formula.literals[i].getVal();
+			if(val == -1) {
+				throw new CNFException("la variable %d n'a pas de valuation" + Math.abs(i));
+			}
+			if(val == 1) {
+				return true;
+			}
+		}
+		return false; 
+		
+	}
 	@Override
 	public String toString() {
 		String res = "(";
