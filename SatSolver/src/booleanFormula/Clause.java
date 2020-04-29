@@ -3,6 +3,11 @@ package booleanFormula;
 import java.util.ArrayList;
 import java.util.Random;
 
+/**
+ * 
+ * @author Serge
+ *
+ */
 public class Clause {
 	
 	//store the literals used in the clause. Shouldn't have fixed length (not sure if true actually) so we use arraylist
@@ -32,6 +37,13 @@ public class Clause {
 	
 	public void addLiteral(int lit_id) {
 		this.literals.add(lit_id);
+	}
+	
+	public void removeLiteral(int lit_id) {
+		//first we remove the current clause from the literal list of clauses.
+		this.formula.getLiterals()[this.formula.getSpecificLiteral(lit_id)].removeClause(this.getId());			
+		this.literals.remove(lit_id);
+		
 	}
 
 	public static void resetCounter() {
@@ -78,6 +90,15 @@ public class Clause {
 		return res;
 	}
 	
+	
+	/**
+	 * Return true if the clause has only 1 literal
+	 * false otherwise
+	 * @return
+	 */
+	public boolean isUnit() {
+		return (this.getLiterals().size()==0);
+	}
 
 	
 }

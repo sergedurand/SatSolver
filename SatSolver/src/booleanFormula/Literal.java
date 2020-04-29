@@ -69,6 +69,10 @@ public class Literal {
 		return;
 	}
 	
+	public void removeClause(int clause_ID) {
+		this.clauses.remove(clause_ID);
+	}
+	
 	/**
 	 * for proper display
 	 */

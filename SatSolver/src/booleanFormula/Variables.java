@@ -25,6 +25,7 @@ public class Variables {
 		}
 	}
 	
+	
 	/**
 	 * this constructor initialize the array of variables with no valuation
 	 * and initialize all the queues for clauses ID
@@ -58,8 +59,8 @@ public class Variables {
 
 	}
 
-	public int[] getVariables() {
-		return variables;
+	public int[] getInterpretation() {
+		return this.variables;
 	}
 
 	public void setVariables(int[] variables) {
@@ -109,6 +110,50 @@ public class Variables {
 		}
 		this.clauses[i].add(clause_ID);
 	}
+	
+	/**
+	 * Remove a clause (clause_ID) from the list of clauses using variable i. 
+	 * @param clause_ID
+	 * @param i
+	 * @throws CNFException
+	 */
+	public void removeClause(int clause_ID,int i) throws CNFException {
+		if(i>this.getSize()-1) {
+			throw new CNFException("index " + i + " out of bound, no such variable in the variables");
+		}
+		if(!this.clauses[i].contains(clause_ID)) {
+			throw new CNFException("no clause " + clause_ID + " in the clauses of variable " + i);
+		}
+		this.clauses[i].remove(clause_ID);
+	}
+	
+	public void removeClauseFromAll(int clause_ID) throws CNFException {
+		for(int i = 0;i<this.getSize();i++) {
+			this.removeClause(clause_ID, i);
+		}
+	}
+	
+	
+	public boolean isUnassigned(int i)  throws CNFException{
+		if(i>this.getSize()-1) {
+			throw new CNFException("index out of bound, no such variable in the variables");
+		}
+		return this.variables[i] == -1;
+	}
+
+	public PriorityBlockingQueue<Integer>[] getClauses() {
+		return clauses;
+	}
+
+	public void setClauses(PriorityBlockingQueue<Integer>[] clauses) {
+		this.clauses = clauses;
+	}
+
+	public int[] getVariables() {
+		return variables;
+	}
+	
+	
 	
 	
 	

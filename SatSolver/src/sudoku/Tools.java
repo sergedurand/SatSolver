@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import booleanFormula.CNF;
 import booleanFormula.CNFException;
@@ -109,6 +110,7 @@ public class Tools {
 							}
 						}
 						
+						
 						literals[id_lit].addClause(cl.getId());
 						res.variables.addClause(cl.getId(), var);
 						cl.addLiteral(id_lit);	
@@ -146,7 +148,8 @@ public class Tools {
 		if(comments != null) {dimacs += comments;} //we assume comments are already in proper format
 		String first_line = "p cnf " + formule.getVariables().getSize() + " " + formule.getClauses().size() +"\n";
 		dimacs += first_line;
-		for(Clause c : formule.getClauses()) {
+		for(HashMap.Entry<Integer,Clause> e : formule.getClauses().entrySet()) {
+			Clause c = e.getValue();
 			String line = "";
 			for(Integer i : c.getLiterals()) {
 				String lit_id = formule.literals[i].sudToString();
@@ -184,7 +187,7 @@ public class Tools {
 	 */
 	public static CNF CNFfromSudoku(Sudoku s) throws CNFException {
 		Variables variables = new Variables(729);
-		Clause.resetCounter(); //in case other formula was created before
+		Clause.resetCounter(); //in case another formula was created before
 		//convention : variables[0:9] contains the 9 possible value for cell [0][0]
 		//variable [0:81] contains the 9 possible values for each cell in the first line
 		//etc.
@@ -192,7 +195,7 @@ public class Tools {
 
 		Literal[] literals = new Literal[729*2];
 		//we initiate valuation from Sudoku grid
-		ArrayList<Clause> clauses = new ArrayList<Clause>();
+		HashMap<Integer,Clause> clauses = new HashMap<Integer,Clause>();
 		int[][] grid = s.getGrid();
 		for(int i = 0;i<grid.length;i++) {
 			for(int j = 0;j<grid.length;j++) {
@@ -244,7 +247,7 @@ public class Tools {
 					variables.addClause(c.getId(), index);
 					c.addLiteral(index);
 				}
-				clauses.add(c);
+				clauses.put(c.getId(),c);
 			}
 		}
 		nb_definedness = clauses.size();
@@ -271,7 +274,7 @@ public class Tools {
 						literals[index2_literal].addClause(c.getId());
 						variables.addClause(c.getId(), index1);
 						variables.addClause(c.getId(), index2);
-						clauses.add(c);
+						clauses.put(c.getId(),c);
 						nb_uniq++;
 					}
 				}
@@ -298,7 +301,7 @@ public class Tools {
 						c.addLiteral(index2_literal);
 						variables.addClause(c.getId(), index1);
 						variables.addClause(c.getId(), index2);
-						clauses.add(c);	
+						clauses.put(c.getId(),c);	
 						nb_l++;
 					}
 				}
@@ -327,7 +330,7 @@ public class Tools {
 						c.addLiteral(index2_literal);
 						variables.addClause(c.getId(), index1);
 						variables.addClause(c.getId(), index2);
-						clauses.add(c);	
+						clauses.put(c.getId(),c);	
 						nb_c ++;
 					}
 				}
@@ -360,7 +363,7 @@ public class Tools {
 							c.addLiteral(index2_literal);
 							variables.addClause(c.getId(), index1);
 							variables.addClause(c.getId(), index2);
-							clauses.add(c);	
+							clauses.put(c.getId(),c);	
 							nb_s ++;
 						}
 					}

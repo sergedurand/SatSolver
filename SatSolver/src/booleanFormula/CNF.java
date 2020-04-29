@@ -1,9 +1,11 @@
 package booleanFormula;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CNF {
-	private ArrayList<Clause> clauses = new ArrayList<Clause>();
+	private HashMap<Integer,Clause> clauses = new HashMap<Integer,Clause>();
 	public Variables variables; //index is the number of the variable. Value : 0 if valuation to false, 1 to true, -1 if no valuation
 	public Literal[] literals; //literal xi is stored in literals[i] and literal not(xi) is stored in literal[literals.length-i]
 	public CNF() {
@@ -14,7 +16,7 @@ public class CNF {
 		this.variables = new Variables(variables);
 	}
 	
-	public CNF(ArrayList<Clause> clauses, int[] variables) {
+	public CNF(HashMap<Integer,Clause> clauses, int[] variables) {
 		super();
 		this.clauses = clauses;
 		this.variables = new Variables(variables);
@@ -25,16 +27,16 @@ public class CNF {
 		this.variables = variables;
 	}
 
-	public ArrayList<Clause> getClauses() {
+	public HashMap<Integer,Clause> getClauses() {
 		return clauses;
 	}
 
-	public void setClauses(ArrayList<Clause> clauses) {
+	public void setClauses(HashMap<Integer,Clause> clauses) {
 		this.clauses = clauses;
 	}
 	
 	public void addClause(Clause c) {
-		this.clauses.add(c);
+		this.clauses.put(c.getId(),c);
 	}
 		
 	
@@ -52,13 +54,12 @@ public class CNF {
 	@Override
 	public String toString() {
 		String res = "[";
-		for(int i = 0;i<this.clauses.size();i++) {
-			res += clauses.get(i).toString();
-			if(i!=this.clauses.size()-1) {
-				res+= " ^ ";
-			}
+		for(HashMap.Entry<Integer,Clause> e : this.clauses.entrySet()) {
+			res+= e.getValue().toString();
+			res+= " ^ ";
 		}
 		res+="]";
+		res = res.substring(0,res.lastIndexOf("^")-1) + res.substring(res.lastIndexOf("^")+2);
 		
 		return res;
 	}
@@ -69,9 +70,10 @@ public class CNF {
 	 * @return
 	 * @throws CNFException 
 	 */
+	
 	public boolean isValid() throws CNFException {
-		for(Clause c : this.clauses) {
-			if(!c.isValid()){
+		for(HashMap.Entry<Integer,Clause> e : this.clauses.entrySet()) {
+			if(e.getValue().isValid()) {
 				return false;
 			}
 		}
@@ -86,6 +88,33 @@ public class CNF {
 			if(literals[i] != null) {nb_lit++;}
 		}
 		System.out.println("Number of literals = " +nb_lit);
+	}
+
+	public Literal[] getLiterals() {
+		return literals;
+	}
+	
+	/**
+	 * returns the index of the literal
+	 * @param lit_id
+	 * @return
+	 */
+	public int getSpecificLiteral(int lit_id) {
+		for(int i = 0;i<this.literals.length;i++) {
+			if(this.literals[i].getId() == lit_id) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	
+	public void removeClause(int clause_ID) throws CNFException {
+		this.clauses.remove(clause_ID);
+		this.variables.removeClauseFromAll(clause_ID);
+		for(Literal l : this.literals) {
+			l.removeClause(clause_ID);
+		}
 	}
 	
 	//TODO : list of stats on literals and variables
