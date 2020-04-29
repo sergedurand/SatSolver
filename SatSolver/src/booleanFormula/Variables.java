@@ -30,6 +30,7 @@ public class Variables {
 	 * and initialize all the queues for clauses ID
 	 * @param size
 	 */
+	@SuppressWarnings("unchecked")
 	public Variables(int size) {
 		this.variables = new int[size];
 		for(int i = 0;i<size;i++) {
@@ -39,6 +40,22 @@ public class Variables {
 		for(int i = 0;i<this.variables.length;i++) {
 			this.clauses[i] = new PriorityBlockingQueue<Integer>();
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void setVariablesFromString(String s) throws CNFException {
+		if(s.length() != this.variables.length) {
+			throw new CNFException("the binary string s : "+ s +"is not suitable for the variables : too long or too short");
+		}
+		
+		for(int i = 0;i<s.length();i++) {
+			char c = s.charAt(i);
+			if(c!='0' && c!='1') {
+				throw new CNFException("valuation :"+c+" is not suitable. \n Convention: -1 if no valuation, 0 if false, 1 if true");
+			}
+			this.variables[i] = Integer.parseInt(String.valueOf(c));
+		}
+
 	}
 
 	public int[] getVariables() {

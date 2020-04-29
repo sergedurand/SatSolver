@@ -1,9 +1,10 @@
 package solver;
 
 import booleanFormula.CNF;
+import booleanFormula.CNFException;
 import booleanFormula.Variables;
 
 public interface Solver {
-	public Variables solve(CNF formula);
+	public Variables solve(CNF formula) throws CNFException;
 	
 }
