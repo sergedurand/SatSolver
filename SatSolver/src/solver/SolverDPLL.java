@@ -1,7 +1,10 @@
 package solver;
 
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import booleanFormula.CNF;
@@ -84,10 +87,48 @@ public class SolverDPLL implements Solver {
 	@Override
 	/**
 	 * Implement a first version of a DPLL algorithm. It uses unit propagation and pure literal elimination.
-	 * No optimization on the choice of variables
+	 * No optimization on the choice of variables.
 	 */
 	public void solve(CNF formula) throws CNFException {
-		// TODO Auto-generated method stub
+		this.updateSolver(formula);
+		
+		Deque<Integer> variablesLeft = new LinkedList<Integer>();
+		for(int i = 0;i<this.formula.getVariables().getSize();i++) {
+			variablesLeft.push(i);
+		}
+		
+		Deque<Integer> variablesVisited = new LinkedList<Integer>();
+		
+		
+		int state = this.formula.satSituation();
+		int cur_var;
+		while(state != 1) {
+			try {
+				cur_var = variablesLeft.pop();
+			}catch(NoSuchElementException e) {
+				this.solved = true;
+				return;
+			}
+			variablesVisited.push(cur_var);
+			int val = 0;
+			this.formula.getVariables().setVal(cur_var, val);
+			this.updateInterpretation();
+			state = this.formula.satSituation();
+			if(state == -1 && val == 0) {
+				val = 1;
+				this.formula.getVariables().setVal(cur_var, val);
+				this.updateInterpretation();
+				state = this.formula.satSituation();
+			}
+			if(state == -1 && val == 1) {
+				try {
+				cur_var = variablesVisited.pop();
+				}catch(NoSuchElementException e) {
+					this.solved = false;
+					return;
+				}
+			}
+		}
 	}
 	
 	@Override
@@ -128,5 +169,8 @@ public class SolverDPLL implements Solver {
 	public void setFormula(CNF formula) {
 		this.formula = formula;
 	}
-
+	
+	private void updateInterpretation() {
+		this.interpretation = this.formula.getVariables().getInterpretation();
+	}
 }

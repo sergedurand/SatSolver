@@ -44,13 +44,16 @@ public class TestFormulas {
 		SolverDPLL s2 = new SolverDPLL();
 		try {
 			phi = SudokuTools.CNFfromDIMACS("petite_formule.cnf");
+			CNF phi2 = Tools.cloneFormula(phi);
 			System.out.println(phi.toString());
+			System.out.println(phi2.toString());
 			Tools.printInterpration(phi.getVariables().getInterpretation());
 			phi.getVariables().setVal(0, 1);
 			Tools.printInterpration(phi.getVariables().getInterpretation());
 			s2.updateSolver(phi);
 			s2.unitProb(0);
-			System.out.println(s2.getFormula().toString());
+			System.out.println(phi.toString());
+			System.out.println(phi2.toString());
 
 			
 

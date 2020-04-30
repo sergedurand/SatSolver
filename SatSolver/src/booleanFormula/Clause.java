@@ -10,7 +10,6 @@ import java.util.Random;
  */
 public class Clause {
 	
-	//store the literals used in the clause. Shouldn't have fixed length (not sure if true actually) so we use arraylist
 	private ArrayList<Integer> literals = new ArrayList<Integer>();
 	private static int count = 0;
 	private int id;
@@ -125,6 +124,10 @@ public class Clause {
 	 */
 	public boolean isUnit() {
 		return (this.getLiterals().size()==1);
+	}
+	
+	public boolean isEmpty() {
+		return (this.getLiterals().size()==0);
 	}
 	
 
