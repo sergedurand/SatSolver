@@ -15,8 +15,8 @@ import booleanFormula.Clause;
 import booleanFormula.Literal;
 import booleanFormula.Variables;
 
-public class Tools {
-	public Tools() {
+public class SudokuTools {
+	public SudokuTools() {
 		super();
 	}
 	

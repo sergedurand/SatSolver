@@ -80,6 +80,7 @@ public class CNF {
 		return true;
 	}
 	
+	
 	public void printStat() {
 		System.out.println("Number of clauses = " + this.clauses.size());
 		System.out.println("Number of variables = " + this.getVariables().getSize());
@@ -115,6 +116,29 @@ public class CNF {
 		for(Literal l : this.literals) {
 			l.removeClause(clause_ID);
 		}
+	}
+	
+	/**
+	 * return 1 if the formula is satisfied
+	 * return 0 if it is unsatisfiable
+	 * return -1 if it is potentially satisfiable
+	 * @return
+	 * @throws CNFException
+	 */
+	public int satSituation() throws CNFException {
+		int res = 1;
+		for(HashMap.Entry<Integer,Clause> e : this.clauses.entrySet()) {
+			Clause c = e.getValue();
+			if(c.clauseSituation() == 0) { //one unsatisfiable clause found
+				res=0;
+				break;
+			}
+			if(c.clauseSituation() == -1) {
+				res=-1; //one potentially satisfied clause
+				break;
+			}
+		}
+		return res; //res is 1 if and only if all clauses are sat
 	}
 	
 	//TODO : list of stats on literals and variables

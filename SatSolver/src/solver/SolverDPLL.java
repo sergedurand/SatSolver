@@ -26,7 +26,7 @@ public class SolverDPLL implements Solver {
 		
 	}
 	@Override
-	public Variables solve(CNF formula) throws CNFException {
+	public int[] solve(CNF formula) throws CNFException {
 		// TODO Auto-generated method stub
 		return null;
 	}

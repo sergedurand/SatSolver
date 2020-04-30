@@ -60,9 +60,36 @@ public class Clause {
 				return true;
 			}
 		}
-		return false; 
-		
+		return false; 	
 	}
+	
+	/**
+	 * return 1 if the clause is satisfied (i.e. one literal satisfies it)
+	 * return 0 if the clause is unsatisfiable (i.e. no literal satisfied it and no literal
+	 * is unassigned)
+	 * return -1 if the clause is potentially satisfiable (no literal satisfied it
+	 * but there are literals unassigned);
+	 * @return
+	 * @throws CNFException
+	 */
+	public int clauseSituation() throws CNFException {
+		int unassigned = 0;
+		for(Integer i : this.literals) {
+			int val = this.formula.literals[i].getVal();
+			if(val == 1) {
+				return 1;
+			}
+			if(val == -1) {
+				unassigned += 1;
+			}
+		}
+		if(unassigned == 0) {
+			return 0;
+		}
+		return -1;
+	}
+	
+	
 	@Override
 	public String toString() {
 		String res = "(";

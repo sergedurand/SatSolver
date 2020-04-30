@@ -5,6 +5,6 @@ import booleanFormula.CNFException;
 import booleanFormula.Variables;
 
 public interface Solver {
-	public Variables solve(CNF formula) throws CNFException;
+	public int[] solve(CNF formula) throws CNFException;
 	
 }

@@ -9,12 +9,12 @@ public class TestSudoku {
 	public static void main(String[] args) throws SudokuException, CNFException {
 		// TODO Auto-generated method stub
 
-		ArrayList<Sudoku> list_sudokus = Tools.ListSudokuFromFile("puzzles.sdk.txt");
+		ArrayList<Sudoku> list_sudokus = SudokuTools.ListSudokuFromFile("puzzles.sdk.txt");
 		System.out.println(list_sudokus.get(3).toString());
 		
 		CNF formule = new CNF();
 		try {
-			formule = Tools.CNFfromSudoku(list_sudokus.get(3));
+			formule = SudokuTools.CNFfromSudoku(list_sudokus.get(3));
 		} catch (CNFException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -22,7 +22,7 @@ public class TestSudoku {
 		
 
 		
-		Tools.DimacsFromCNF(formule, "sudoku4", null);
+		SudokuTools.DimacsFromCNF(formule, "sudoku4", null);
 		
 	
 		

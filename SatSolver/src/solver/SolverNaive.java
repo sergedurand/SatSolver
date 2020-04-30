@@ -1,15 +1,27 @@
 package solver;
 
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
+
 import booleanFormula.CNF;
 import booleanFormula.CNFException;
 import booleanFormula.Variables;
 
 public class SolverNaive implements Solver {
-
+	
+	private CNF formula;
+	private int[] interpretation;
+	private boolean solved;
 	public SolverNaive() {
+		this.solved = false;
 		// TODO Auto-generated constructor stub
 	}
 	
+	public SolverNaive(CNF formula) {
+		this.formula = formula;
+		this.interpretation = formula.getVariables().getInterpretation();
+	}
 	
 	/**
 	 * Naive solving. Test all possible variables assignment
@@ -17,24 +29,27 @@ public class SolverNaive implements Solver {
 	 * @throws CNFException 
 	 */
 	@Override
-	public Variables solve(CNF formula) throws CNFException {
-		int max = formula.getVariables().getSize();
+	public int[] solve(CNF formula) throws CNFException {
+		this.formula = formula;
+		int max = this.formula.getVariables().getSize();
 		String s = ""; //first valuation
 		for(int i = 0;i<max;i++) {
 			s = s+"0";
 		}
 		
-		formula.getVariables().setVariablesFromString(s);
-		while(!formula.isValid()) {
+		this.formula.getVariables().setVariablesFromString(s);
+		this.updateInterpretation();
+		while(!this.formula.isValid()) {
 			s = nextInt(s,max);
 			if(s == null) {
 				System.out.println("UNSAT");
 				return null;
 			}
-			formula.getVariables().setVariablesFromString(s);
+			this.formula.getVariables().setVariablesFromString(s);
+			this.updateInterpretation();
 		}
 		System.out.println("SAT");
-		return formula.getVariables();
+		return this.interpretation;
 	}
 	
 	/**
@@ -56,6 +71,67 @@ public class SolverNaive implements Solver {
 		}
 		return res_s;
 		
+	}
+	
+	private void updateInterpretation() {
+		this.interpretation = this.formula.getVariables().getInterpretation();
+	}
+	
+	public int[] naiveBacktrack() throws CNFException {
+		
+		Deque<Integer> variablesLeft = new LinkedList<Integer>();
+		for(int i = 0;i<this.formula.getVariables().getSize();i++) {
+			variablesLeft.push(i);
+		}
+		
+		Deque<Integer> variablesVisited = new LinkedList<Integer>();
+		
+		
+		int state = this.formula.satSituation();
+		int cur_var;
+		while(state != 1) {
+			try {
+				cur_var = variablesLeft.pop();
+			}catch(NoSuchElementException e) {
+				this.solved = true;
+				System.out.println("SAT");
+				return this.interpretation;
+			}
+			variablesVisited.push(cur_var);
+			int val = 0;
+			this.formula.getVariables().setVal(cur_var, val);
+			this.updateInterpretation();
+			state = this.formula.satSituation();
+			if(state == -1 && val == 0) {
+				val = 1;
+				this.formula.getVariables().setVal(cur_var, val);
+				this.updateInterpretation();
+				state = this.formula.satSituation();
+			}
+			if(state == -1 && val == 1) {
+				try {
+				cur_var = variablesVisited.pop();
+				}catch(NoSuchElementException e) {
+					this.solved = false;
+					System.out.println("UNSAT");
+					return null;
+				}
+			}
+		}
+		System.out.println("SAT");
+		return this.interpretation;
+	}
+	
+	public void updateSover() {
+		this.formula = null;
+		this.interpretation = null;
+		this.solved = false;
+	}
+	
+	public void updateSolver(CNF formula) {
+		this.formula = formula;
+		this.interpretation = formula.getVariables().getInterpretation();
+		this.solved = false;
 	}
 	
 
