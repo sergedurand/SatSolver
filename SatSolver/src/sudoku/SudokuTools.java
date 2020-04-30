@@ -85,7 +85,11 @@ public class SudokuTools {
 					res.setVariables(variables);
 					literals = new Literal[nb_var*2];
 				}
+				
 				else { //reading the clauses
+					if(line.charAt(0) == '%') { //some dimacs file had more at the end...
+						break;
+					}
 					line = line.trim().replaceAll(" +", " "); // clean all spaces
 					String[] tab = line.split(" +");
 					Clause cl = new Clause();

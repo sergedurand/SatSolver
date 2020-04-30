@@ -41,8 +41,8 @@ public class Clause {
 	
 	public void removeLiteral(int lit_id) {
 		//first we remove the current clause from the literal list of clauses.
-		this.formula.getLiterals()[this.formula.getSpecificLiteral(lit_id)].removeClause(this.getId());			
-		this.literals.remove(lit_id);
+		this.formula.getLiterals()[lit_id].removeClause(this.getId());
+		this.literals.remove(Integer.valueOf(lit_id));
 		
 	}
 
@@ -124,8 +124,9 @@ public class Clause {
 	 * @return
 	 */
 	public boolean isUnit() {
-		return (this.getLiterals().size()==0);
+		return (this.getLiterals().size()==1);
 	}
+	
 
 	
 }

@@ -122,7 +122,7 @@ public class Variables {
 			throw new CNFException("index " + i + " out of bound, no such variable in the variables");
 		}
 		if(!this.clauses[i].contains(clause_ID)) {
-			throw new CNFException("no clause " + clause_ID + " in the clauses of variable " + i);
+			return;
 		}
 		this.clauses[i].remove(clause_ID);
 	}

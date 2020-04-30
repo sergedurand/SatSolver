@@ -123,4 +123,10 @@ public class Literal {
 		
 		return res;
 	}
+	public PriorityBlockingQueue<Integer> getClauses() {
+		return clauses;
+	}
+	public void setClauses(PriorityBlockingQueue<Integer> clauses) {
+		this.clauses = clauses;
+	}
 }

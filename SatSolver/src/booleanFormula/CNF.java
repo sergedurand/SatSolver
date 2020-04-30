@@ -102,6 +102,9 @@ public class CNF {
 	 */
 	public int getSpecificLiteral(int lit_id) {
 		for(int i = 0;i<this.literals.length;i++) {
+			if(this.literals[i] == null) {
+				continue;
+			}
 			if(this.literals[i].getId() == lit_id) {
 				return i;
 			}
@@ -114,7 +117,9 @@ public class CNF {
 		this.clauses.remove(clause_ID);
 		this.variables.removeClauseFromAll(clause_ID);
 		for(Literal l : this.literals) {
-			l.removeClause(clause_ID);
+			if(l != null) {
+				l.removeClause(clause_ID);
+			}
 		}
 	}
 	
