@@ -135,7 +135,7 @@ public class SolverDPLL implements Solver {
 			this.formula.getVariables().setVal(cur_var, val);
 			this.updateInterpretation();
 			cur_pair.setFormula(this.formula);
-			this.unitProb(cur_var);
+			this.formula = this.unitProb(cur_var,this.formula);
 			cur_pair.setFormula(this.formula);
 			
 			//checking empty clause
@@ -157,7 +157,7 @@ public class SolverDPLL implements Solver {
 				this.formula.getVariables().setVal(cur_var, val);
 				this.updateInterpretation();
 				cur_pair.setFormula(this.formula);
-				this.unitProb(cur_var);
+				this.formula = this.unitProb(cur_var,this.formula);
 				cur_pair.setFormula(this.formula);
 				
 				//checking empty clause
@@ -203,7 +203,7 @@ public class SolverDPLL implements Solver {
 		for(int i = 0;i<phi.getVariables().getSize();i++) {
 			phi = unitProb(i, phi);
 		}
-		phi.add
+		return false;
 		
 	}
 	@Override

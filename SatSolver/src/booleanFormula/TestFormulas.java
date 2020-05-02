@@ -42,7 +42,7 @@ public class TestFormulas {
 //				s1.printRes();
 //			}
 			s2 = new SolverDPLL();
-			CNF phi = SudokuTools.CNFfromDIMACS("C:\\Users\\Serge\\Documents\\Maths\\M1 JH ENS\\Logical aspect of AI\\SatSolver\\SatSolver\\data\\logistics\\logistics.c.cnf");
+			CNF phi = SudokuTools.CNFfromDIMACS("wikiDLL.txt");
 			System.out.println("test");
 			phi.printStat();
 			s2.solve(phi);
