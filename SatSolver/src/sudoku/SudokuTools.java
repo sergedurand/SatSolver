@@ -90,11 +90,13 @@ public class SudokuTools {
 					if(line.charAt(0) == '%') { //some dimacs file had more at the end...
 						break;
 					}
-					line = line.trim().replaceAll(" +", " "); // clean all spaces
+					System.err.println(line);
+					line = line.trim().replaceAll(" +", " ").replaceAll("\t", " "); // clean all spaces and potential tab
 					String[] tab = line.split(" +");
 					Clause cl = new Clause();
 					for(int i = 0;i<tab.length-1;i++) {//browsing the literals
 						int var = Math.abs(Integer.parseInt(tab[i]))-1;
+						System.err.println(var);
 						int id_lit = Integer.parseInt(tab[i]);
 						Literal l = new Literal();
 						if(id_lit<0) {
@@ -117,7 +119,7 @@ public class SudokuTools {
 						
 						literals[id_lit].addClause(cl.getId());
 						res.variables.addClause(cl.getId(), var);
-						cl.addLiteral(id_lit);	
+						cl.addLiteral(id_lit);
 					}
 					res.addClause(cl);
 				}
@@ -135,7 +137,7 @@ public class SudokuTools {
 		}
 		
 		res.literals =literals;
-
+		System.out.println(res.toString());
 		return res;
 
 	}

@@ -159,7 +159,6 @@ public class Tools {
 					Variables variables = new Variables(nb_var);
 					res.setVariables(variables);
 					literals = new Literal[nb_var*2];
-					System.out.println("literals size = " + nb_var*2);
 				}
 				
 				else { //reading the clauses
@@ -168,7 +167,6 @@ public class Tools {
 					}
 					line = line.trim().replaceAll(" +", " "); // clean all spaces
 					String[] tab = line.split(" +");
-					System.out.println(line);
 					Clause cl = new Clause();
 					for(int i = 0;i<tab.length-1;i++) {//browsing the literals
 						int var = Math.abs(Integer.parseInt(tab[i]))-1;
@@ -219,7 +217,6 @@ public class Tools {
 	
 	public static CNF cloneFormula(CNF phi) throws CNFException {
 		String dimacs = StringDimacsFromCNF(phi, "");
-		System.out.println(dimacs);
 		CNF res = CNFfromDIMACS(dimacs);
 		return res;
 	}

@@ -74,6 +74,9 @@ public class Clause {
 	public int clauseSituation() throws CNFException {
 		int unassigned = 0;
 		for(Integer i : this.literals) {
+			if(this.formula.literals[i] == null) {
+				continue;
+			}
 			int val = this.formula.literals[i].getVal();
 			if(val == 1) {
 				return 1;

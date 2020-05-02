@@ -103,7 +103,7 @@ public class Variables {
 	 */
 	public void addClause(int clause_ID, int i) throws CNFException {
 		if(i>this.getSize()-1) {
-			throw new CNFException("index out of bound, no such variable in the variables");
+			throw new CNFException("index out of bound, no such variable in the variables. i = " + i + ", max_size = "+(this.getSize()-1));
 		}
 		if(this.clauses[i].contains(clause_ID)) { //to prevent duplicates from list of clauses
 			return;

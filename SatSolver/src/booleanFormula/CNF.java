@@ -88,7 +88,14 @@ public class CNF {
 		for(int i = 0;i<literals.length;i++) {
 			if(literals[i] != null) {nb_lit++;}
 		}
-		System.out.println("Number of literals = " +nb_lit);
+		System.out.println("Number of unique literals = " +nb_lit);
+		nb_lit = 0;
+		for(HashMap.Entry<Integer,Clause> e : this.getClauses().entrySet()) {
+			Clause c = e.getValue();
+			nb_lit += c.getLiterals().size();
+		}
+		System.out.println("Number of total literals = " +nb_lit);
+
 	}
 
 	public Literal[] getLiterals() {
@@ -134,7 +141,7 @@ public class CNF {
 		int res = 1;
 		for(HashMap.Entry<Integer,Clause> e : this.clauses.entrySet()) {
 			Clause c = e.getValue();
-			if(c.clauseSituation() == 0) { //one unsatisfiable clause found
+			if(c.isEmpty() || c.clauseSituation() == 0) { //one unsatisfiable clause found
 				res=0;
 				break;
 			}

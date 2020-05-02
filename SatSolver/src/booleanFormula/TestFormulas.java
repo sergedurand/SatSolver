@@ -17,16 +17,37 @@ public class TestFormulas {
 		// TODO Auto-generated method stub
 		
 		// trying the naive solver (and import function).
-		List<String> benchmark = Tools.listFiles("C:\\Users\\Serge\\Documents\\Maths\\M1 JH ENS\\Logical aspect of AI\\SatSolver\\SatSolver\\data\\benchmark\\uf20");
+		List<String> benchmark = Tools.listFiles("C:\\Users\\Serge\\Documents\\Maths\\M1 JH ENS\\Logical aspect of AI\\SatSolver\\SatSolver\\data\\benchmark\\uuf50-218");
 		SolverNaive s1 = new SolverNaive();
+		SolverDPLL s2 = new SolverDPLL();
 		ArrayList<CNF> bench_formulas = new ArrayList<CNF>();
 		
-//		try {
+		try {
+//			int i = 0;
 //			for(String filename : benchmark) {
 //				CNF phi = SudokuTools.CNFfromDIMACS(filename);
 //				bench_formulas.add(phi);
+//				i++;
 //			}
-//			
+			
+			
+//			CNF phi2 = SudokuTools.CNFfromDIMACS(".\\data\\benchmark\\uuf50-218\\uuf50-01.cnf");
+//			Literal l = phi2.getLiterals()[16];
+//			System.out.println(l.toString());
+//			s2.solve(phi2);
+//			s2.printRes();
+
+//			for(CNF phi : bench_formulas) {
+//				s1.solve(phi);
+//				s1.printRes();
+//			}
+			s2 = new SolverDPLL();
+			CNF phi = SudokuTools.CNFfromDIMACS("C:\\Users\\Serge\\Documents\\Maths\\M1 JH ENS\\Logical aspect of AI\\SatSolver\\SatSolver\\data\\logistics\\logistics.c.cnf");
+			System.out.println("test");
+			phi.printStat();
+			s2.solve(phi);
+			s2.printRes();
+			
 //			long startTime = System.nanoTime();
 //			for(CNF phi : bench_formulas) {
 //				s1.solve(phi);
@@ -34,33 +55,22 @@ public class TestFormulas {
 //			
 //			long elapsedTime = System.nanoTime() - startTime;
 //			System.out.println("Temps total d'execution pour solver naif sur uf20-91 = " + elapsedTime/1000000 + " ms");
-//		
-//		} catch (CNFException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		
-		CNF phi;
-		SolverDPLL s2 = new SolverDPLL();
-		try {
-			phi = SudokuTools.CNFfromDIMACS("petite_formule.cnf");
-			CNF phi2 = Tools.cloneFormula(phi);
-			System.out.println(phi.toString());
-			System.out.println(phi2.toString());
-			Tools.printInterpration(phi.getVariables().getInterpretation());
-			phi.getVariables().setVal(0, 1);
-			Tools.printInterpration(phi.getVariables().getInterpretation());
-			s2.updateSolver(phi);
-			s2.unitProb(0);
-			System.out.println(phi.toString());
-			System.out.println(phi2.toString());
-
+//			
+//			startTime = System.nanoTime();
+//			for(CNF phi : bench_formulas) {
+//				s2.solve(phi);
+//				//s2.printRes();
+//			}
+//			
+//			elapsedTime = System.nanoTime() - startTime;
+//			System.out.println("Temps total d'execution pour solver DPLL sur uf20-91 = " + elapsedTime/1000000 + " ms");
 			
-
 		} catch (CNFException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+
 		
 	
 	}	

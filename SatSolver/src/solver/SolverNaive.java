@@ -44,7 +44,7 @@ public class SolverNaive implements Solver {
 		
 		int state = this.formula.satSituation();
 		int cur_var;
-		while(state != 1) {
+		while(true) {
 			try {
 				cur_var = variablesLeft.pop();
 			}catch(NoSuchElementException e) {
