@@ -1,0 +1,6 @@
+(29/04)
+UNIT PROPAGATION :
+1) cleaning the clauses
+1.1) updating the literal use count
+2) literal affectation for unit clause.
+2.1) add isUnit to clause
