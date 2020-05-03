@@ -1,0 +1,5 @@
+#!/bin/bash
+for file in "./SatSolver/data/benchmark/tests_competition/*"
+do
+  minisat "$file"
+done

@@ -72,8 +72,8 @@ public class Variables {
 	}
 	
 	/**
-	 * return the valuation of variable xi
-	 * v
+	 * return the valuation of variable i
+	 * 1 for true, 0 for false, -1 for unassigned
 	 * @param i
 	 * @return
 	 */

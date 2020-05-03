@@ -153,5 +153,6 @@ public class CNF {
 		return res; //res is 1 if and only if all clauses are sat
 	}
 	
+	
 	//TODO : list of stats on literals and variables
 }

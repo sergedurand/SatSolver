@@ -1,5 +1,6 @@
 package booleanFormula;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +48,6 @@ public class TestFormulas {
 			phi.printStat();
 			s2.solve(phi);
 			s2.printRes();
-			
 //			long startTime = System.nanoTime();
 //			for(CNF phi : bench_formulas) {
 //				s1.solve(phi);

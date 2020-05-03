@@ -30,6 +30,7 @@ public class PairVariableFormula {
 		String res = "Variable = " + this.variable;
 		res+= "\n";
 		res+= this.formula.toString();
+		res+= "\n";
 		return res;
 	}
 	
