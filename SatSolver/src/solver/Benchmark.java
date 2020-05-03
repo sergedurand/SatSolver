@@ -17,10 +17,17 @@ public class Benchmark {
 			System.out.println("please put the path to the folder containing the dimacs files");
 			//return;
 		}
-		String path = "C:\\Users\\Serge\\Documents\\Maths\\M1 JH ENS\\Logical aspect of AI\\SatSolver\\SatSolver\\data\\bf";
+		String path = args[0];
+		Solver s = new SolverDPLL();
+		if(args.length> 2) {
+			System.out.println("Too many arguments");
+			return;
+		}
+		if(args.length==2 && args[1].equals("NAIVE")) {
+			s = new SolverNaive();
+		}
 		List<String> benchmark = Tools.listFiles(path);
 		ArrayList<CNF> bench_formulas = new ArrayList<CNF>();
-		SolverDPLL s = new SolverDPLL();
 
 		try {
 			for(String filename : benchmark) {
@@ -53,8 +60,8 @@ public class Benchmark {
 				cpt ++;
 			}
 		}
-		long elapsed_time = System.nanoTime()-clone_time;
-		System.out.println("temps total = " + elapsed_time/1_000_000 + " ms");
+		long elapsed_time = System.nanoTime()-start_time-clone_time;
+		System.out.println("temps total = " + elapsed_time/1000000 + " ms");
 		System.out.println("Nombre de formule abandonnée : " + cpt);
 
 	}

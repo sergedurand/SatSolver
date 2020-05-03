@@ -13,7 +13,7 @@ public class Clause {
 	private ArrayList<Integer> literals = new ArrayList<Integer>();
 	private static int count = 0;
 	private int id;
-	public static CNF formula;
+	private CNF formula;
 	
 	public Clause() {
 		super();
@@ -133,6 +133,43 @@ public class Clause {
 		return (this.getLiterals().size()==0);
 	}
 	
+	public Clause clone() {
+		ArrayList<Integer> new_lit = new ArrayList<Integer>(this.literals.size());
+		for(int i = 0;i<this.literals.size();i++) {
+			new_lit.add(this.literals.get(i));
+		}
+		
+		return new Clause(new_lit);
+	}
+	public CNF getFormula() {
+		return formula;
+	}
+	public void setFormula(CNF formula) {
+		this.formula = formula;
+	}
+	
+	/**
+	 * check if the variable var_id is in this clause
+	 * @param var_id
+	 * @return
+	 */
+	public boolean hasVar(int var_id) {
+		for(int idx : this.literals) {
+			if(this.formula.getLiterals()[idx].getId()==var_id) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean hasLit(int lit_id) {
+		for(int idx : this.literals) {
+			if(idx == lit_id) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	
 }

@@ -2,12 +2,13 @@ package booleanFormula;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class Variables {
 	private int[] variables;
-	private PriorityBlockingQueue<Integer>[] clauses;
+	private LinkedList<Integer>[] clauses;
 	
 	/**
 	 * this constructor initialize variables from input
@@ -19,9 +20,9 @@ public class Variables {
 	public Variables(int[] variables) {
 		super();
 		this.variables = variables;
-		this.clauses = new PriorityBlockingQueue[this.variables.length];
+		this.clauses = new LinkedList[this.variables.length];
 		for(int i = 0;i<this.variables.length;i++) {
-			this.clauses[i] = new PriorityBlockingQueue<Integer>();
+			this.clauses[i] = new LinkedList<Integer>();
 		}
 	}
 	
@@ -37,9 +38,9 @@ public class Variables {
 		for(int i = 0;i<size;i++) {
 			variables[i] = -1;
 		}
-		this.clauses = new PriorityBlockingQueue[this.variables.length];
+		this.clauses = new LinkedList[this.variables.length];
 		for(int i = 0;i<this.variables.length;i++) {
-			this.clauses[i] = new PriorityBlockingQueue<Integer>();
+			this.clauses[i] = new LinkedList<Integer>();
 		}
 	}
 	
@@ -86,7 +87,7 @@ public class Variables {
 	
 	public void setVal(int i, int val)throws CNFException {
 		if(i>this.getSize()-1) {
-			throw new CNFException("index out of bound, no such variable in the variables");
+			throw new CNFException("index : " + i + " out of bound, no such variable in the variables");
 		}
 		if(val!=0 && val!=-1 && val!=1) {
 			throw new CNFException("valuation :"+val+" is not suitable. \n Convention: -1 if no valuation, 0 if false, 1 if true");
@@ -141,11 +142,11 @@ public class Variables {
 		return this.variables[i] == -1;
 	}
 
-	public PriorityBlockingQueue<Integer>[] getClauses() {
+	public LinkedList<Integer>[] getClauses() {
 		return clauses;
 	}
 
-	public void setClauses(PriorityBlockingQueue<Integer>[] clauses) {
+	public void setClauses(LinkedList<Integer>[] clauses) {
 		this.clauses = clauses;
 	}
 
@@ -153,6 +154,10 @@ public class Variables {
 		return variables;
 	}
 	
+	public Variables clone() {
+		int[] interpretation = this.variables.clone();
+		return new Variables(interpretation);
+	}
 	
 	
 	

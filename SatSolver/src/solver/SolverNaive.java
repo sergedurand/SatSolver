@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import booleanFormula.CNF;
 import booleanFormula.CNFException;
 import booleanFormula.Variables;
+import tools.Tools;
 
 public class SolverNaive implements Solver {
 	
@@ -34,12 +35,12 @@ public class SolverNaive implements Solver {
 	public void solve(CNF formula) throws CNFException {
 		this.updateSolver(formula);
 		
-		Deque<Integer> variablesLeft = new LinkedList<Integer>();
+		LinkedList<Integer> variablesLeft = new LinkedList<Integer>();
 		for(int i = 0;i<this.formula.getVariables().getSize();i++) {
-			variablesLeft.push(i);
+			variablesLeft.add(i);
 		}
 		
-		Deque<Integer> variablesVisited = new LinkedList<Integer>();
+		LinkedList<Integer> variablesVisited = new LinkedList<Integer>();
 		
 		
 		int state = this.formula.satSituation();
@@ -119,6 +120,36 @@ public class SolverNaive implements Solver {
 			System.out.println("UNSAT");
 		}
 	}
+	
+	public boolean solveRecCall(CNF phi, int i,long start_time) throws CNFException, SolverTimeoutException {
+		long elapsed_time = (System.nanoTime()-start_time)/1_000_000_000;
+		if(elapsed_time > 2) {
+			throw new SolverTimeoutException("Over 10 seconds");
+		}
+		int state = phi.satSituation();
+		//base cases
+		if(state == 1) {
+			this.solved = true;
+			return true;
+		}
+
+		if(i >= phi.getVariables().getSize()) { //all variables have been tested
+			this.solved = false;
+			return false;
+		}
+		
+		CNF phi1 = Tools.cleanClone(phi);
+		CNF phi2 = Tools.cleanClone(phi);
+		phi1.getVariables().setVal(i, 0);
+		phi2.getVariables().setVal(i, 1);
+		return solveRecCall(phi1,i+1,start_time) || solveRecCall(phi2,i+1,start_time);		
+	}
+	
+	public boolean solveRec(CNF phi) throws SolverTimeoutException, CNFException {
+		long start_time = System.nanoTime();
+		return solveRecCall(phi,0,start_time);
+	}
+	
 	
 
 }

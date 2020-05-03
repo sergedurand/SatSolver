@@ -68,8 +68,6 @@ public class SudokuTools {
 	 */
 	public static CNF CNFfromDIMACS(String filename) throws CNFException {
 		CNF res = new CNF();
-		Clause.formula = res;
-		Literal.formula = res;
 		int nb_var = 0;
 		Literal[] literals = null;
 		try(BufferedReader br = new BufferedReader((new FileReader(filename)))) {
@@ -93,10 +91,12 @@ public class SudokuTools {
 					line = line.trim().replaceAll(" +", " ").replaceAll("\t", " "); // clean all spaces and potential tab
 					String[] tab = line.split(" +");
 					Clause cl = new Clause();
+					cl.setFormula(res);
 					for(int i = 0;i<tab.length-1;i++) {//browsing the literals
 						int var = Math.abs(Integer.parseInt(tab[i]))-1;
 						int id_lit = Integer.parseInt(tab[i]);
 						Literal l = new Literal();
+						l.setFormula(res);
 						if(id_lit<0) {
 							id_lit = literals.length+id_lit;
 							l.setNeg(true);
@@ -356,6 +356,7 @@ public class SudokuTools {
 						int j2 = (y*3) + k2%3;
 						for(int d = 0;d<9;d++) {
 							Clause c = new Clause();
+							c.setFormula(res);
 							int index1 = (i1*9+j1)*9+d;
 							int index2 = (i2*9+j2)*9+d;
 							int index1_literal = literals.length-index1-1;
@@ -377,11 +378,15 @@ public class SudokuTools {
 		System.out.println("Validity on squares " + nb_s);
 		System.out.println("total = " + (nb_s+nb_c+nb_l+nb_uniq+nb_definedness));
 		System.out.println("total clause = "+clauses.size());
+		for(Literal l : literals) {
+			l.setFormula(res);
+		}
+		for(HashMap.Entry<Integer,Clause> e : clauses.entrySet()) {
+			e.getValue().setFormula(res);
+		}
 		res.setClauses(clauses);
 		res.setVariables(variables);
 		res.setLiterals(literals);
-		Literal.formula = res;
-		Clause.formula = res;
 		
 		return res;
 		

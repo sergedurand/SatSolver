@@ -235,10 +235,10 @@ public class SolverDPLL implements Solver {
 		
 		//we run unit prob on all variables
 		
-		CNF phi1 = Tools.cloneFormula(phi);
+		CNF phi1 = Tools.cleanClone(phi);
+		CNF phi2 = Tools.cleanClone(phi);
 		phi1.getVariables().setVal(i, 0);
 		phi1 = unitProb(i, phi1);
-		CNF phi2 = Tools.cloneFormula(phi);
 		phi2.getVariables().setVal(i, 1);
 		phi2 = unitProb(i, phi2);
 		return solveAppelRec(phi1,i+1,trace,start_time) || solveAppelRec(phi2,i+1,trace,start_time);		

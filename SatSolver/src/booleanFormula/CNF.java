@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CNF {
-	private HashMap<Integer,Clause> clauses = new HashMap<Integer,Clause>();
+	//we chose a HashMap for faster access to specific clauses (clauses ID != index...)
+	private HashMap<Integer,Clause> clauses = new HashMap<Integer,Clause>(); 
 	public Variables variables; //index is the number of the variable. Value : 0 if valuation to false, 1 to true, -1 if no valuation
 	public Literal[] literals; //literal xi is stored in literals[i] and literal not(xi) is stored in literal[literals.length-i]
 	public CNF() {
@@ -153,6 +154,9 @@ public class CNF {
 		return res; //res is 1 if and only if all clauses are sat
 	}
 	
+	public int[] getInterpretation() {
+		return this.getVariables().getInterpretation();
+	}
 	
 	//TODO : list of stats on literals and variables
 }

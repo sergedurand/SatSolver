@@ -1,0 +1,10 @@
+ordering1 = SAT
+ordering2 = SAT
+ordering3 = UNSAT
+pigeon1 = SAT
+pigeon2 = SAT
+pigeon3 = SAT
+rand3_1 = SAT
+rand3_2 = SAT
+rand6_1 = SAT
+rand6_2 = SAT

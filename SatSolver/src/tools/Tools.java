@@ -143,8 +143,6 @@ public class Tools {
 	 */
 	public static CNF CNFfromDIMACS(String dimacs) throws CNFException {
 		CNF res = new CNF();
-		Clause.formula = res;
-		Literal.formula = res;
 		int nb_var = 0;
 		Literal[] literals = null;
 		try(BufferedReader br = new BufferedReader((new StringReader(dimacs)))) {
@@ -191,9 +189,11 @@ public class Tools {
 						
 						
 						literals[id_lit].addClause(cl.getId());
+						literals[id_lit].setFormula(res);
 						res.variables.addClause(cl.getId(), var);
-						cl.addLiteral(id_lit);	
+						cl.addLiteral(id_lit);
 					}
+					cl.setFormula(res);
 					res.addClause(cl);
 				}
 				
@@ -218,7 +218,54 @@ public class Tools {
 	public static CNF cloneFormula(CNF phi) throws CNFException {
 		String dimacs = StringDimacsFromCNF(phi, "");
 		CNF res = CNFfromDIMACS(dimacs);
+		res.getVariables().setVariables(phi.getVariables().getInterpretation());
 		return res;
+	}
+	
+	public static CNF cleanClone(CNF phi) throws CNFException {
+		CNF res = new CNF();
+		Variables variables = phi.getVariables().clone();
+		res.setVariables(variables);
+		Literal[] literals = new Literal[variables.getSize()*2];
+		for(int i = 0;i<variables.getSize();i++) {
+			Literal l_pos = new Literal();
+			l_pos.setId(i);
+			l_pos.setFormula(res);
+			l_pos.setNeg(false);
+			literals[i] = l_pos;
+			
+			Literal l_neg = new Literal();
+			l_neg.setId(i);
+			l_neg.setFormula(res);
+			l_neg.setNeg(true);
+			literals[literals.length-1-i] = l_neg;
+		}
+		res.setLiterals(literals);
+		
+		HashMap<Integer,Clause> clauses = new HashMap<Integer,Clause>();
+		for(HashMap.Entry<Integer,Clause> e : phi.getClauses().entrySet()) {
+			Clause c = e.getValue().clone();
+			c.setFormula(res);
+			clauses.put(c.getId(), c);
+		}
+		res.setClauses(clauses);
+		
+		for(HashMap.Entry<Integer,Clause> e : clauses.entrySet()) {
+			Clause c = e.getValue();
+			for(int i = 0;i<variables.getSize();i++) {
+				if(c.hasVar(i)) {
+					variables.addClause(c.getId(), i);
+				}
+			}
+			for(int i = 0;i<res.getLiterals().length;i++) {
+				if(c.hasLit(i)) {
+					res.getLiterals()[i].addClause(c.getId());
+				}
+			}
+		}
+		
+		return res;
+		
 	}
 
 }

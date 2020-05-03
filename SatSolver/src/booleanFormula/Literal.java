@@ -10,7 +10,7 @@ import java.util.concurrent.PriorityBlockingQueue;
  *
  */
 public class Literal {
-	public static CNF formula; //this is the formula to which the literals belong. Used to access the valuation for all literals
+	private CNF formula; //this is the formula to which the literals belong. Used to access the valuation for all literals
 	private int id; //this is the id of the variable of the literal, it is not unique: x1 and not(x1) have both id = 1
 	private boolean isNeg = false;
 	//contains the list of clauses that uses the literal
@@ -53,10 +53,10 @@ public class Literal {
 	 * @throws CNFException
 	 */
 	public int getVal() throws CNFException {
-		if(Literal.formula == null) {
+		if(this.formula == null) {
 			throw new CNFException("this literal " + this.id +" isn't assigned to any formula");
 		}
-		int var_val =  Literal.formula.variables.getVal(this.id);
+		int var_val =  this.formula.variables.getVal(this.id);
 		if(var_val == -1) {return var_val;}
 		if(isNeg) {return 1-var_val;}
 		else return var_val;
@@ -129,4 +129,18 @@ public class Literal {
 	public void setClauses(PriorityBlockingQueue<Integer> clauses) {
 		this.clauses = clauses;
 	}
+	
+	public Literal clone() {
+		Literal res = new Literal();
+		res.setId(this.getId());
+		res.setNeg(this.isNeg());
+		return res;
+	}
+	public CNF getFormula() {
+		return formula;
+	}
+	public void setFormula(CNF formula) {
+		this.formula = formula;
+	}
 }
+
