@@ -7,7 +7,7 @@ import java.util.Map;
 public class CNF {
 	//we chose a HashMap for faster access to specific clauses (clauses ID != index...)
 	private HashMap<Integer,Clause> clauses = new HashMap<Integer,Clause>(); 
-	public Variables variables; //index is the number of the variable. Value : 0 if valuation to false, 1 to true, -1 if no valuation
+	private Variables variables; //index is the number of the variable. Value : 0 if valuation to false, 1 to true, -1 if no valuation
 	public Literal[] literals; //literal xi is stored in literals[i] and literal not(xi) is stored in literal[literals.length-i]
 	public CNF() {
 		super();
@@ -131,6 +131,15 @@ public class CNF {
 		}
 	}
 	
+	public ArrayList<Integer> getClauseID(){
+		ArrayList<Integer> res = new ArrayList<Integer>();
+		for(HashMap.Entry<Integer,Clause> e : this.clauses.entrySet()) {
+			res.add(e.getKey());	
+		}
+		
+		return res;
+	}
+	
 	/**
 	 * return 1 if the formula is satisfied
 	 * return 0 if it is unsatisfiable
@@ -158,5 +167,8 @@ public class CNF {
 		return this.getVariables().getInterpretation();
 	}
 	
+	public ArrayList<Integer> getUnassigned() throws CNFException{
+		return this.variables.getUnassigned();
+	}
 	//TODO : list of stats on literals and variables
 }

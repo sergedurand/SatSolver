@@ -1,5 +1,6 @@
 package solver;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
@@ -37,73 +38,68 @@ public class SolverDPLL implements Solver {
 	}
 	
 	/**
-	 * Performs unit propagation and pure literal elimination
+	 * Remove all clauses satisfied by the assignement of var_id
+	 * Remove all negative literals caused by the assignment from the remaining clauses
 	 * @throws CNFException 
 	 */
-	public CNF unitProb(int var_id, CNF phi) throws CNFException {
-		Literal pos;
-		Literal neg;
-		int idx_neg;
-		if(phi.getVariables().getVal(var_id)==1) {
-			//if var_id = 1, i.e. the variable is x2, and I(x2) = 1, 
-			//the literal x2 is positif and the literal neg(x2) is negative. If I(x2) = 0 it's the opposite
-			//reminder: we store all the possible literals in a fixed array:
-			//[x1,x2,...xn,neg(xn),neg(xn-1)...,neg(x1)]
-			pos = phi.getLiterals()[var_id];
-			idx_neg = phi.getLiterals().length-var_id-1;
-			neg = phi.getLiterals()[idx_neg];
-		}else if(phi.getVariables().getVal(var_id)==0) {
-			pos = phi.getLiterals()[phi.getLiterals().length-var_id-1];
-			idx_neg = var_id;
-			neg = phi.getLiterals()[var_id];
-		}else {//we are in the case of an unassigned variable
-			return phi;
+	public CNF removeSatClauses(int var_id, CNF phi) throws CNFException {
+		CNF res = Tools.cleanClone(phi);
+		ArrayList<Integer> clauses_id = res.getClauseID();
+		int lit_pos;
+		int lit_neg;
+		//we get the index of the positive and negative literal according to the variable valuation
+		if(res.getInterpretation()[var_id] == 1) {
+			lit_pos = var_id;
+			lit_neg = res.getLiterals().length-1-var_id;
+		}else if(res.getInterpretation()[var_id] == 0) {
+			lit_pos = res.getLiterals().length-1-var_id;
+			lit_neg = var_id;
+		}else {
+			throw new CNFException("Trying to remove clauses with an unassigned variable : " + var_id); 
 		}
-		
-		
-		//first we remove the clauses containing the positive literal: unit propagation
-		if(pos != null) {
-			PriorityBlockingQueue<Integer> clauses = pos.getClauses();
-			for(int clause_ID : clauses) {
-				phi.removeClause(clause_ID);
+		//every clauses containing literal[lit_pos] is satisfied, we can remove them
+		for(int id : clauses_id) {
+			if(res.getClauses().get(id).hasLit(lit_pos)) {
+				res.removeClause(id);
 			}
 		}
 		
-		//we remove the remaining literals: being negative they don't add value
-		if( neg != null) {
-			PriorityBlockingQueue<Integer> clauses = neg.getClauses();
-			for(int clause_ID : clauses) {
-				if(!phi.getClauses().get(clause_ID).isEmpty()) {
-					phi.getClauses().get(clause_ID).removeLiteral(idx_neg);
-				}
-			}
+		//we remove every negative literals
+		clauses_id = res.getClauseID();
+		for(int id : clauses_id) {
+			res.getClauses().get(id).removeLiteral(lit_neg);
 		}
-		phi.getLiterals()[idx_neg] = null; //the literal is not active in the formula anymore
-		
-		//if we have new assignement possible we can do a recursive call
-//		int new_var = -1;
-//		for(Iterator<HashMap.Entry<Integer,Clause>> e = phi.getClauses().entrySet().iterator();e.hasNext();) {
-//			Clause c = e.next().getValue();
-//			if(c.isUnit()){
-//				Literal unique_lit = phi.getLiterals()[c.getLiterals().get(0)];
-//				new_var = unique_lit.getId();
-//				if(unique_lit.isNeg()) {
-//					phi.getVariables().setVal(new_var, 0);
-//				}else {
-//					phi.getVariables().setVal(new_var, 1);
-//				}
-//				break;
-//			}
-//		}
-//		if(new_var != -1) {
-//			phi = this.unitProb(new_var, phi);
-//		}else {
-//			return phi;
-//		}
-		return phi;
-
+		return res;
 	}
 	
+	
+	/**
+	 * Check if there are any unit clauses. 
+	 * If there are returns variable ID and assignment
+	 * If there aren't returns [-1];
+	 * @param phi
+	 * @return
+	 */
+	public int[] unitPropagation(CNF phi) {
+		int[] res = {-1};
+		ArrayList<Integer> clauses_id = phi.getClauseID();
+		for(int id : clauses_id) {
+			Clause c = phi.getClauses().get(id);
+			if(c.isUnit()) {
+				int lit_id = c.getLiterals().get(0);
+				int var_id = phi.getLiterals()[lit_id].getId();
+				int val = 1;
+				if(phi.getLiterals()[lit_id].isNeg()) {
+					val = 0;
+				}
+				res = new int[2];
+				res[0] = var_id;
+				res[1] = val;
+				return res;
+			}
+		}
+		return res;	
+	}
 	
 	@Override
 	/**
@@ -111,103 +107,8 @@ public class SolverDPLL implements Solver {
 	 * No optimization on the choice of variables.
 	 */
 	public void solve(CNF formula) throws CNFException {
-		this.updateSolver(formula);
-		Deque<PairVariableFormula> variablesLeft = new LinkedList<PairVariableFormula>();
 		
-		for(int i = 0;i<this.formula.getVariables().getSize();i++) {
-			PairVariableFormula var = new PairVariableFormula(i,this.formula);
-			System.err.println(i);
-			variablesLeft.add(var);
-		}
-		
-		Deque<PairVariableFormula> variablesVisited = new LinkedList<PairVariableFormula>();
-		
-		Trace cur_trace = new Trace(null);
-		int cur_var;
-		PairVariableFormula cur_pair;
-		TracePrinter p = new TracePrinter(); 
-		int i = 0;
-		while(true) {
-			try {
-				cur_pair = variablesLeft.pop();
-				cur_var = cur_pair.getVariable();
-				this.formula = cur_pair.getFormula();
-				cur_trace.setRoot(cur_pair);
-				i += 1;
-			}catch(NoSuchElementException e) {
-				this.solved = true;
-				while(cur_trace.getParent() != null) {
-					cur_trace = cur_trace.getParent();
-				}
-				this.trace = trace;
-				return;
-			}
-			
-			CNF cur_formula = Tools.cloneFormula(this.formula);
-			int val = 0;
-			this.formula.getVariables().setVal(cur_var, val);
-			this.updateInterpretation();
-			cur_pair.setFormula(this.formula);
-			this.formula = this.unitProb(cur_var,this.formula);
-			cur_pair.setFormula(this.formula);
-			cur_trace.setLeft(new Trace(cur_pair));
-			//checking empty clause
-			boolean hasEmptyClause = false;
-			for(HashMap.Entry<Integer,Clause> e : this.formula.getClauses().entrySet()) {
-				if(e.getValue().isEmpty()) {
-					hasEmptyClause = true;
-					break;
-				}
-			}
-			if(!hasEmptyClause) {
-				variablesVisited.push(cur_pair);
-				cur_trace = cur_trace.getLeft();
-				continue;
-			}else {
-				//we forget changes made by unit prob and try again with val = 1
-				this.formula = cur_formula;
-				cur_pair.setFormula(cur_formula);
-				val = 1;
-				this.formula.getVariables().setVal(cur_var, val);
-				this.updateInterpretation();
-				cur_pair.setFormula(this.formula);
-				this.formula = this.unitProb(cur_var,this.formula);
-				cur_pair.setFormula(this.formula);
-				cur_trace.setRight(new Trace(cur_pair));
-				//checking empty clause
-				boolean hasEmptyClause_bis = false;
-				for(HashMap.Entry<Integer,Clause> e : this.formula.getClauses().entrySet()) {
-					if(e.getValue().isEmpty()) {
-						hasEmptyClause_bis = true;
-						break;
-					}
-				}
-				if(!hasEmptyClause_bis) {//no empty clause, we can keep searching
-					this.formula=cur_pair.getFormula();
-					this.updateInterpretation();
-					variablesVisited.push(cur_pair);
-					cur_trace = cur_trace.getRight();
-
-					continue;
-				}else {//this time we have to backtrack before the first assignment
-					try {
-						cur_pair = variablesVisited.pop();
-						cur_trace = cur_trace.getParent();
-					}catch(NoSuchElementException e) { //no more choice = unsatisfiable
-						this.solved = false;
-						//go back to the root
-						while(cur_trace.getParent() != null) {
-							cur_trace = cur_trace.getParent();
-						}
-						this.trace = cur_trace;
-						return;
-					}
-				}
-			}
-			
-		}
-		
-		
+		LinkedList<Integer> VariablesLeft = new LinkedList<Integer>();
 	}
 	
 	

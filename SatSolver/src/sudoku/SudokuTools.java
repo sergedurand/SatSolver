@@ -116,7 +116,7 @@ public class SudokuTools {
 						
 						
 						literals[id_lit].addClause(cl.getId());
-						res.variables.addClause(cl.getId(), var);
+						res.getVariables().addClause(cl.getId(), var);
 						cl.addLiteral(id_lit);
 					}
 					res.addClause(cl);
@@ -402,7 +402,7 @@ public class SudokuTools {
 	 * @throws CNFException
 	 */
 	public static Sudoku SudokuFromCNF(CNF formule) throws SudokuException, CNFException {
-		if(formule.variables.getSize() != 729) {
+		if(formule.getVariables().getSize() != 729) {
 			throw new SudokuException("The formula doesn't have proper size. It should have 729 variables");
 		}
 		

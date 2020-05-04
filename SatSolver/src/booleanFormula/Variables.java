@@ -122,10 +122,10 @@ public class Variables {
 		if(i>this.getSize()-1) {
 			throw new CNFException("index " + i + " out of bound, no such variable in the variables");
 		}
-		if(!this.clauses[i].contains(clause_ID)) {
-			return;
+		if(this.clauses[i].contains(clause_ID)) {
+			this.clauses[i].remove(new Integer(clause_ID));
 		}
-		this.clauses[i].remove(clause_ID);
+		
 	}
 	
 	public void removeClauseFromAll(int clause_ID) throws CNFException {
@@ -159,6 +159,15 @@ public class Variables {
 		return new Variables(interpretation);
 	}
 	
+	public LinkedList<Integer> getUnassigned() throws CNFException{
+		LinkedList<Integer> res = new LinkedList<Integer>();
+		for(int i = 0;i<this.variables.length;i++) {
+			if(this.getVal(i)==-1) {
+				res.push(i);
+			}
+		}
+		return res;
+	}
 	
 	
 	

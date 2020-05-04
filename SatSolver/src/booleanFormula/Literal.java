@@ -56,7 +56,7 @@ public class Literal {
 		if(this.formula == null) {
 			throw new CNFException("this literal " + this.id +" isn't assigned to any formula");
 		}
-		int var_val =  this.formula.variables.getVal(this.id);
+		int var_val =  this.formula.getVariables().getVal(this.id);
 		if(var_val == -1) {return var_val;}
 		if(isNeg) {return 1-var_val;}
 		else return var_val;

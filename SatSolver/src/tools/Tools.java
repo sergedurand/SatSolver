@@ -190,7 +190,7 @@ public class Tools {
 						
 						literals[id_lit].addClause(cl.getId());
 						literals[id_lit].setFormula(res);
-						res.variables.addClause(cl.getId(), var);
+						res.getVariables().addClause(cl.getId(), var);
 						cl.addLiteral(id_lit);
 					}
 					cl.setFormula(res);
