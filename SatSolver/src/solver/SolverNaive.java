@@ -32,7 +32,7 @@ public class SolverNaive implements Solver {
 	 * @throws CNFException 
 	 */
 	@Override
-	public void solve(CNF formula) throws CNFException {
+	public boolean solve(CNF formula) throws CNFException {
 		this.updateSolver(formula);
 		
 		LinkedList<Integer> variablesLeft = new LinkedList<Integer>();
@@ -50,7 +50,7 @@ public class SolverNaive implements Solver {
 				cur_var = variablesLeft.pop();
 			}catch(NoSuchElementException e) {
 				this.solved = true;
-				return;
+				return true;
 			}
 			variablesVisited.push(cur_var);
 			int val = 0;
@@ -68,7 +68,7 @@ public class SolverNaive implements Solver {
 				cur_var = variablesVisited.pop();
 				}catch(NoSuchElementException e) {
 					this.solved = false;
-					return;
+					return false;
 				}
 			}
 		}

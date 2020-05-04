@@ -37,6 +37,7 @@ public class TestSolverNaive {
 				e.printStackTrace();
 			}catch(SolverTimeoutException e){
 				cpt ++;
+				System.out.println(e.toString());
 			}
 		}
 		long elapsed_time = System.nanoTime()-start_time;

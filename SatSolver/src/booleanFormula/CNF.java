@@ -2,6 +2,7 @@ package booleanFormula;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 public class CNF {
@@ -167,8 +168,19 @@ public class CNF {
 		return this.getVariables().getInterpretation();
 	}
 	
-	public ArrayList<Integer> getUnassigned() throws CNFException{
+	public LinkedList<Integer> getUnassigned() throws CNFException{
 		return this.variables.getUnassigned();
 	}
-	//TODO : list of stats on literals and variables
+	//TODO : list of stats on literals and variables7
+	
+
+	public boolean hasEmptyClause() {
+		for(HashMap.Entry<Integer,Clause> e : this.clauses.entrySet()) {
+			Clause c = e.getValue();
+			if(c.isEmpty()){
+				return true;
+			}
+		}
+		return false;
+	}
 }

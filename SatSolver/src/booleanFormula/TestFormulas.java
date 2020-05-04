@@ -20,8 +20,10 @@ public class TestFormulas {
 				+ "\\Projet Logique\\Projet\\SatSolver\\benchmark\\ordering1.cnf");
 		System.out.println(phi);
 		
-		phi.getClauses().get(2).removeLiteral(phi.getLiterals().length-1);
-		System.out.println(phi);
+		phi.getClauses().get(0).removeLiteral(2);
+		phi.getClauses().get(0).removeLiteral(4);
+		System.out.println(phi.hasEmptyClause());
+
 		
 	
 	}	
