@@ -13,13 +13,12 @@ import tools.Tools;
 public class TestSolverDPLL {
 	public static void main(String[] args) throws CNFException, SolverTimeoutException {
 		SolverDPLL s = new SolverDPLL();
-		String path = "C:\\Users\\Serge\\Documents\\Maths\\M1 JH ENS\\Projet Logique\\Projet\\SatSolver\\benchmark";
+		String path = "C:\\Users\\Serge\\Documents\\Maths\\M1 JH ENS\\Projet Logique\\Projet\\SatSolver\\SatSolver\\data\\benchmark\\uf20";
 		List<String> benchmark = Tools.listFiles(path);
 		ArrayList<CNF> bench_formulas = new ArrayList<CNF>();
 
 		try {
 			for(String filename : benchmark) {
-				System.out.println(filename);
 				CNF phi = SudokuTools.CNFfromDIMACS(filename);
 				bench_formulas.add(phi);
 			}
@@ -31,9 +30,9 @@ public class TestSolverDPLL {
 		long start_time = System.nanoTime();
 		long clone_time = 0;
 		int cpt = 0;
-		for(CNF phi : bench_formulas) {
+		for(CNF phi : bench_formulas.subList(0, 15)) {
 			try {
-				boolean res = s.solveRec(phi);
+				boolean res = s.solve(phi);
 				if(res) {
 					System.out.println("SAT");
 				}else {

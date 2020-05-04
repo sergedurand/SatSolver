@@ -113,7 +113,6 @@ public class SolverDPLL implements Solver {
 		LinkedList<PairVariableFormula> VariablesExplored = new LinkedList<PairVariableFormula>();
 		int var = -1;
 		boolean backtracking = false;
-		boolean stop_unit_prob = false;
 		long elapsed_time;
 		while(true) {
 			elapsed_time = (System.nanoTime()-start_time)/1_000_000_000;
@@ -251,6 +250,109 @@ public class SolverDPLL implements Solver {
 		}			
 	}
 	
+	
+	
+	/**
+	 * Implement a first version of a DPLL algorithm. It uses unit propagation but no pure literal elimination.
+	 * No optimization on the choice of variables.
+	 */
+	public boolean solveNoLitElim(CNF phi) throws CNFException, SolverTimeoutException {
+		long start_time = System.nanoTime();
+		LinkedList<Integer> VariablesLeft = phi.getUnassigned();
+
+		LinkedList<PairVariableFormula> VariablesExplored = new LinkedList<PairVariableFormula>();
+		int var = -1;
+		boolean backtracking = false;
+		long elapsed_time;
+		while(true) {
+			elapsed_time = (System.nanoTime()-start_time)/1_000_000_000;
+			if(elapsed_time > 10) {
+				throw new SolverTimeoutException("Over 10 seconds");
+			}
+			int val;
+			boolean empty = false;
+			if(!backtracking) {
+				//case of a fresh variable: start from val = 0
+				try {
+					var = VariablesLeft.pop();
+				}catch(NoSuchElementException e) {
+					//we have no more variables left and haven't found a conflict, it's SAT
+					//in the weird case the formula is empty with no variable:
+					if(phi.hasEmptyClause()) {
+						this.solved = false;
+						return false;
+					}
+					this.solved = true;
+					this.interpretation = phi.getInterpretation();
+					return true;
+				}
+				//we have a variable to check.
+				//get a fresh clone
+				CNF phi1 = Tools.cleanClone(phi);
+				val = 0;
+				phi.getVariables().setVal(var, val);
+				phi1.getVariables().setVal(var,1);
+				//if it fails we'll look for the other branch: the assignment to 1
+				VariablesExplored.push(new PairVariableFormula(var,phi1)); 
+				//we run unit propagation and pure literal elimination until impossible;
+				empty = false;
+				phi = removeSatClauses(var, phi);
+				empty = phi.hasEmptyClause();
+
+				if(!empty) {
+					//we found no empty clause. We can keep looking with the next variable.
+					VariablesLeft = phi.getUnassigned();
+					backtracking = false;
+					continue;
+				}else {
+					//conflict found, we try the other assignment
+					PairVariableFormula cur_pair = VariablesExplored.pop();
+					var = cur_pair.getVariable();
+					phi = cur_pair.getFormula();
+					phi = removeSatClauses(var, phi);
+					empty = phi.hasEmptyClause();
+
+					if(!empty) {
+						//we can continue, no backtracking
+						VariablesLeft = phi.getUnassigned();
+						backtracking = false;
+						continue;
+					}else {
+						//we have an empty clause on second assignement: need to backtrack
+						backtracking = true;
+						continue;
+					}
+				}
+				
+			}else { //we are backtracking
+				PairVariableFormula cur_pair;
+				try {
+					 cur_pair = VariablesExplored.pop();
+				}catch(NoSuchElementException e) {
+					//in this case we fail: nowhere to backtrack to
+					this.solved = false;
+					return false;
+				}
+				
+				var = cur_pair.getVariable();
+				phi = cur_pair.getFormula();
+				//no need to get a specific val, when backtracking we know we have only assignment 1 left.
+				//no need to add to explored variables: we won't backtrack again to here
+				phi = removeSatClauses(var, phi);
+				empty = phi.hasEmptyClause();
+				if(!empty) {
+					//we can continue 
+					VariablesLeft = phi.getUnassigned();
+					backtracking = false;
+					continue;
+				}else {
+					//we have an empty clause on second assignement we have to try to backtrack further
+					backtracking = true;
+					continue;
+				}
+			}
+		}			
+	}
 	
 	/**
 	 * Recursive version of DPLL algorithm
