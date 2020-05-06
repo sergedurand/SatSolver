@@ -103,21 +103,24 @@ public class SolverDPLL implements Solver {
 	
 	@Override
 	/**
-	 * Implement a first version of a DPLL algorithm. It uses unit propagation and pure literal elimination.
+	 * Implement an iterative version of a DPLL algorithm.
 	 * No optimization on the choice of variables.
 	 */
 	public boolean solve(CNF phi) throws CNFException, SolverTimeoutException {
 		long start_time = System.nanoTime();
 		LinkedList<Integer> VariablesLeft = phi.getUnassigned();
-
 		LinkedList<PairVariableFormula> VariablesExplored = new LinkedList<PairVariableFormula>();
 		int var = -1;
 		boolean backtracking = false;
 		long elapsed_time;
 		while(true) {
+			if(phi.satSituation() == 1) {
+				this.solved = true;
+				return true;
+			}
 			elapsed_time = (System.nanoTime()-start_time)/1_000_000_000;
-			if(elapsed_time > 10) {
-				throw new SolverTimeoutException("Over 10 seconds");
+			if(elapsed_time > 5) {
+				throw new SolverTimeoutException("Over 5 seconds");
 			}
 			int val;
 			int[] assigned_var = {0};
@@ -145,11 +148,19 @@ public class SolverDPLL implements Solver {
 				phi1.getVariables().setVal(var,1);
 				//if it fails we'll look for the other branch: the assignment to 1
 				VariablesExplored.push(new PairVariableFormula(var,phi1)); 
-				//we run unit propagation and pure literal elimination until impossible;
+				//we run unit propagation until impossible;
 				assigned_var = new int[1];
 				assigned_var[0] = -2;
 				empty = false;
 				while(true) {
+					if(phi.satSituation() == 1) {
+						this.solved = true;
+						return true;
+					}
+					elapsed_time = (System.nanoTime()-start_time)/1_000_000_000;
+					if(elapsed_time > 5) {
+						throw new SolverTimeoutException("Over 5 seconds");
+					}
 					phi = removeSatClauses(var, phi);
 					empty = phi.hasEmptyClause();
 					if(empty) {
@@ -159,8 +170,10 @@ public class SolverDPLL implements Solver {
 					if(assigned_var[0] == -1) {//we have found no new assignment due to pure literal propagation
 						break;
 					}
+
 					phi.getVariables().setVal(assigned_var[0], assigned_var[1]);
 					phi = removeSatClauses(assigned_var[0], phi);
+
 					empty = phi.hasEmptyClause();
 					if(empty) {
 						break;
@@ -178,6 +191,10 @@ public class SolverDPLL implements Solver {
 					phi = cur_pair.getFormula();
 					assigned_var[0] = 0;
 					while(true) {
+						if(phi.satSituation() == 1) {
+							this.solved = true;
+							return true;
+						}
 						phi = removeSatClauses(var, phi);
 						empty = phi.hasEmptyClause();
 						if(empty) {
@@ -221,6 +238,10 @@ public class SolverDPLL implements Solver {
 				//no need to add to explored variables: we won't backtrack again to here
 				assigned_var[0] = 0;
 				while(true) {
+					if(phi.satSituation() == 1) {
+						this.solved = true;
+						return true;
+					}
 					phi = removeSatClauses(var, phi);
 					empty = phi.hasEmptyClause();
 					if(empty) {

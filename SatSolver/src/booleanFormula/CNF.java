@@ -183,4 +183,10 @@ public class CNF {
 		}
 		return false;
 	}
+	
+	public void printClauses(int var_id) {
+		for(int clause_id: this.getVariables().getClauses()[var_id]) {
+			System.out.println(this.getClauses().get(clause_id).toString());
+		}
+	}
 }

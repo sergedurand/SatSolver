@@ -8,21 +8,21 @@ import booleanFormula.CNFException;
 import booleanFormula.ListFormulas;
 import booleanFormula.Literal;
 import sudoku.SudokuTools;
+import tools.DimacsParser;
 import tools.Tools;
 
 public class TestSolverDPLL {
 	public static void main(String[] args) throws CNFException, SolverTimeoutException {
 		SolverDPLL s = new SolverDPLL();
 		
-		
-		String path = "./UNSAT";
+		String path = "/home/serge/Documents/ProjetAI/SatSolver/SatSolver/data/benchmark/uf50-218";
 		List<String> benchmark = Tools.listFiles(path);
 		ArrayList<CNF> bench_formulas = new ArrayList<CNF>();
 
 		try {
 			for(String filename : benchmark) {
 				System.out.println(filename);
-				CNF phi = SudokuTools.CNFfromDIMACS(filename);
+				CNF phi = DimacsParser.CNFfromDIMACS2(filename);
 				bench_formulas.add(phi);
 			}
 		} catch (CNFException e) {
@@ -45,13 +45,11 @@ public class TestSolverDPLL {
 				e.printStackTrace();
 			}catch(SolverTimeoutException e){
 				cpt ++;
-				phi.printStat();
-				System.out.println(phi);
 			}
 		}
 		long elapsed_time = System.nanoTime()-start_time-clone_time;
 		System.out.println("temps total = " + elapsed_time/1000000 + " ms");
-		System.out.println("Nombre de formule abandonn�e : " + cpt);					System.out.println("SAT");
+		System.out.println("Nombre de formule abandonn�e : " + cpt);
 
 	}
 

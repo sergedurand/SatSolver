@@ -169,6 +169,9 @@ public class Variables {
 		return res;
 	}
 	
+	public void printClauses(int var_id) {
+	}
+	
 	
 	
 }

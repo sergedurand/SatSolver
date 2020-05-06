@@ -88,7 +88,6 @@ public class SudokuTools {
 					if(line.charAt(0) == '%') { //some dimacs file had more at the end...
 						break;
 					}
-					
 					line = line.trim().replaceAll(" +", " ").replaceAll("\t", " "); // clean all spaces and potential tab
 					if(line.charAt(0) == '0') {
 						continue; //taking care of files where the 0 is at another line but not necessarily first caracter.
@@ -96,7 +95,11 @@ public class SudokuTools {
 					String[] tab = line.split(" +");
 					Clause cl = new Clause();
 					cl.setFormula(res);
-					for(int i = 0;i<tab.length-1;i++) {//browsing the literals
+					int last_index = tab.length-2;
+					if(line.charAt(line.length()-1) != '0') {//some files don't have a 0 at the end of the line but on the next line
+						last_index = tab.length-1; //in this case we have to go all the way
+					}
+					for(int i = 0;i<=last_index;i++) {//browsing the literals
 						int var = Math.abs(Integer.parseInt(tab[i]))-1;
 						int id_lit = Integer.parseInt(tab[i]);
 						Literal l = new Literal();
@@ -142,6 +145,8 @@ public class SudokuTools {
 		return res;
 
 	}
+	
+
 	
 	/**
 	 * save a CNF as a Dimacs file. Comments should be properly formatted or null
