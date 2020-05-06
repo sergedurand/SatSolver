@@ -88,7 +88,11 @@ public class SudokuTools {
 					if(line.charAt(0) == '%') { //some dimacs file had more at the end...
 						break;
 					}
+					
 					line = line.trim().replaceAll(" +", " ").replaceAll("\t", " "); // clean all spaces and potential tab
+					if(line.charAt(0) == '0') {
+						continue; //taking care of files where the 0 is at another line but not necessarily first caracter.
+					}
 					String[] tab = line.split(" +");
 					Clause cl = new Clause();
 					cl.setFormula(res);
