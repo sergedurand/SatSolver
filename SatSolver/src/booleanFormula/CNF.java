@@ -2,6 +2,8 @@ package booleanFormula;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -233,6 +235,71 @@ public class CNF {
 		
 		this.literals = lit;
 		
+	}
+	
+	
+	/**
+	 * add n new variables to the formula and its corresponding 2*n literals
+	 * @param n
+	 */
+	public void addVariables(int n) {
+		int[] new_variables = new int[n];
+		for(int i= 0; i < n; i++) {
+			new_variables[i] = -1;
+		}
+		
+		int size_or = this.getVariables().getSize();
+		int[] res = new int[size_or+n];
+		System.arraycopy(this.getVariables().getVariables(), 0, res, 0,size_or);
+		System.arraycopy(new_variables, 0, res, size_or, n);
+		this.getVariables().setVariables(res);
+		LinkedList<Integer>[] updated_clauses = new LinkedList[size_or+n];
+		System.arraycopy(this.getVariables().getClauses(), 0, updated_clauses, 0, size_or);
+		for(int i = 0;i<n;i++) {
+			updated_clauses[i+size_or] = new LinkedList<Integer>();
+		}
+		
+		this.getVariables().setClauses(updated_clauses);
+		Literal[] new_literals = new Literal[n*2];
+		for(int i = 0;i<n;i++) {
+			int lit_pos = i;
+			int lit_neg = n*2-1-i;
+			new_literals[lit_pos] = new Literal(lit_pos,false);
+			new_literals[lit_neg] = new Literal(lit_neg,true);
+			new_literals[lit_pos].setId(i+size_or);
+			new_literals[lit_neg].setId(i+size_or);
+			new_literals[lit_pos].setFormula(this);
+			new_literals[lit_pos].setFormula(this);
+		}
+		
+		Literal[] lit_pos = new Literal[n];
+		System.arraycopy(new_literals, 0, lit_pos, 0, n);
+		Literal[] lit_neg = new Literal[n];
+		System.arraycopy(new_literals, n, lit_neg, 0, n);
+		Literal[] final_lit = new Literal[this.getLiterals().length+n*2];
+		System.arraycopy(this.getLiterals(),0,final_lit,0,size_or);
+		System.arraycopy(this.getLiterals(), size_or, final_lit, final_lit.length-1-size_or, size_or);
+		
+		//we have to update the shifting in every clauses...
+		for(HashMap.Entry<Integer,Clause> e : this.clauses.entrySet()) {
+			Clause c = e.getValue();
+			LinkedHashSet<Integer> temp = new LinkedHashSet<Integer>();
+			Iterator<Integer> it = c.getLiterals().iterator();
+			while(it.hasNext()) {
+				int lit_id = it.next();
+				if(lit_id < size_or) {
+					temp.add(lit_id);
+				}else {
+					temp.add(lit_id+n);
+				}
+			}
+			c.setLiterals(temp);
+		}
+		
+		//finally we can add the new literals
+		System.arraycopy(lit_pos, 0, final_lit, size_or, n);
+		System.arraycopy(lit_neg, 0, final_lit, size_or+n, n);
+		this.literals = final_lit;
 	}
 	
 	

@@ -171,7 +171,4 @@ public class Variables {
 	
 	public void printClauses(int var_id) {
 	}
-	
-	
-	
 }

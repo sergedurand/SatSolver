@@ -16,13 +16,11 @@ public class TestFormulas {
 
 	public static void main(String[] args) throws CNFException {
 		// TODO Auto-generated method stub
-		CNF phi = SudokuTools.CNFfromDIMACS("C:\\Users\\Serge\\Documents\\Maths\\M1 JH ENS"
-				+ "\\Projet Logique\\Projet\\SatSolver\\benchmark\\ordering1.cnf");
+		CNF phi = Tools.CNFfromDIMACS("p 3 3 \n -1 2 0\n 1 3 0\n 3 -2 0\n");
 		System.out.println(phi);
-		
-		phi.getClauses().get(0).removeLiteral(2);
-		phi.getClauses().get(0).removeLiteral(4);
-		System.out.println(phi.hasEmptyClause());
+		phi.printStat();
+		phi.addVariables(2);
+		phi.printStat();
 
 		
 	
