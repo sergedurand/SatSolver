@@ -138,7 +138,7 @@ public class DimacsParser {
 			e.printStackTrace();
 		}
 		
-		res.literals =literals;
+		res.setLiterals(literals);
 		return res;
 
 	}

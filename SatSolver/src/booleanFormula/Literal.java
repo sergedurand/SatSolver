@@ -84,11 +84,18 @@ public class Literal {
 		return "x"+(id+1);
 	}
 	
-	public String sudToString() {
+	/**
+	 * print the literal in the style associated with grid-like problem (e.g. sudoku or latin square)
+	 * assumes the grid is square and the values are from 1 to size
+	 * for instance x145 is the literal satisfied if there is a 5 in row 1 column 4.
+	 * @param size of the grid
+	 * @return
+	 */
+	public String gridToString(int size) {
 		//printing literal using https://www.lri.fr/~conchon/ENSPSaclay/project/A_SAT-based_Sudoku_solver.pdf conventions
-		int i = id/81 +1;
-		int j = (id/9)%9+1;
-		int k = id-((i-1)*9+(j-1))*9 +1;
+		int i = id/(size*size) +1;
+		int j = (id/size)%size+1;
+		int k = id-((i-1)*size+(j-1))*size +1;
 		String id1 = i+""+j+""+k;
 		if(this.isNeg) {
 			return "\u00AC"+"x"+(id1);

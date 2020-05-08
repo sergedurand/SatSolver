@@ -59,47 +59,6 @@ public class Tools {
 	
 	
 	/**
-	 * save a CNF as a Dimacs file. Comments should be properly formatted or null
-	 * @param formule
-	 * @param filename
-	 * @param comments
-	 */
-	public static void DimacsFromCNF(CNF formule, String filename, String comments) {
-		String dimacs = "";
-		String path = "./"+filename+".cnf";
-		if(comments != null) {dimacs += comments;} //we assume comments are already in proper format
-		String first_line = "p cnf " + formule.getVariables().getSize() + " " + formule.getClauses().size() +"\n";
-		dimacs += first_line;
-		for(HashMap.Entry<Integer,Clause> e : formule.getClauses().entrySet()) {
-			Clause c = e.getValue();
-			String line = "";
-			for(Integer i : c.getLiterals()) {
-				String lit_id = formule.literals[i].sudToString();
-				String res = "";
-				if(formule.literals[i].isNeg()) {
-					res += "-" + lit_id.charAt(2) + lit_id.charAt(3) + lit_id.charAt(4);
-				}else {
-					res += lit_id.charAt(1) + lit_id.charAt(2) + lit_id.charAt(3);
-				}
-				res += " ";
-				line += res;
-
-			}
-			line += "0\n";
-			dimacs += line;
-		}
-		
-		try (FileWriter writer = new FileWriter(path); BufferedWriter bw = new BufferedWriter(writer)){
-			bw.write(dimacs);
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-	
-	/**
 	 * create a Dimacs style string from a CNF. Comments should be properly formatted or null
 	 * used for formula deep copy
 	 * @param formule
@@ -115,9 +74,9 @@ public class Tools {
 			Clause c = e.getValue();
 			String line = "";
 			for(Integer i : c.getLiterals()) {
-				int lit_id = formule.literals[i].getId() + 1;
+				int lit_id = formule.getLiterals()[i].getId() + 1;
 				String res = "";
-				if(formule.literals[i].isNeg()) {
+				if(formule.getLiterals()[i].isNeg()) {
 					res += "-" + lit_id;
 				}else {
 					res += lit_id;
@@ -209,18 +168,12 @@ public class Tools {
 			e.printStackTrace();
 		}
 		
-		res.literals =literals;
+		res.setLiterals(literals);
 
 		return res;
 
 	}
 	
-	public static CNF cloneFormula(CNF phi) throws CNFException {
-		String dimacs = StringDimacsFromCNF(phi, "");
-		CNF res = CNFfromDIMACS(dimacs);
-		res.getVariables().setVariables(phi.getVariables().getInterpretation());
-		return res;
-	}
 	
 	public static CNF cleanClone(CNF phi) throws CNFException {
 		CNF res = new CNF();
@@ -265,6 +218,47 @@ public class Tools {
 		}
 		
 		return res;
+		
+	}
+	
+	/**
+	 * save a CNF as a Dimacs file. Comments should be properly formatted or null
+	 * @param formule
+	 * @param filename
+	 * @param comments
+	 */
+	public static void DimacsFromCNF(CNF formule, String filename, String comments) {
+		String dimacs = "";
+		String path = "./"+filename+".cnf";
+		if(comments != null) {dimacs += comments;} //we assume comments are already in proper format
+		String first_line = "p cnf " + formule.getVariables().getSize() + " " + formule.getClauses().size() +"\n";
+		dimacs += first_line;
+		for(HashMap.Entry<Integer,Clause> e : formule.getClauses().entrySet()) {
+			Clause c = e.getValue();
+			String line = "";
+			for(Integer i : c.getLiterals()) {
+				String lit_id = Integer.toString(formule.getLiterals()[i].getId());
+				String res = "";
+				if(formule.getLiterals()[i].isNeg()) {
+					res += "-" + lit_id;
+				}else {
+					res += lit_id;
+				}
+				res += " ";
+				line += res;
+
+			}
+			line += "0\n";
+			dimacs += line;
+		}
+		
+		try (FileWriter writer = new FileWriter(path); BufferedWriter bw = new BufferedWriter(writer)){
+			bw.write(dimacs);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 

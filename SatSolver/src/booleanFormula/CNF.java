@@ -9,13 +9,14 @@ public class CNF {
 	//we chose a HashMap for faster access to specific clauses (clauses ID != index...)
 	private HashMap<Integer,Clause> clauses = new HashMap<Integer,Clause>(); 
 	private Variables variables; //index is the number of the variable. Value : 0 if valuation to false, 1 to true, -1 if no valuation
-	public Literal[] literals; //literal xi is stored in literals[i] and literal not(xi) is stored in literal[literals.length-i]
+	private Literal[] literals; //literal xi is stored in literals[i] and literal not(xi) is stored in literal[literals.length-i]
 	public CNF() {
 		super();
 	}
 	
-	public CNF(int[] variables) {
+	public CNF(int[] variables) throws CNFException {
 		this.variables = new Variables(variables);
+		this.initLiterals();
 	}
 	
 	public CNF(HashMap<Integer,Clause> clauses, int[] variables) {
@@ -24,9 +25,10 @@ public class CNF {
 		this.variables = new Variables(variables);
 	}
 	
-	public CNF(Variables variables) {
+	public CNF(Variables variables) throws CNFException {
 		super();
 		this.variables = variables;
+		this.initLiterals();
 	}
 
 	public HashMap<Integer,Clause> getClauses() {
@@ -52,6 +54,25 @@ public class CNF {
 	public void setVariables(Variables variables) {
 		this.variables = variables;
 	}
+	
+	/**
+	 * print the formula in the style associated with grid-like problem (e.g. sudoku or latin square)
+	 * assumes the grid is square and the values are from 1 to size
+	 * for instance x145 is the literal satisfied if there is a 5 in row 1 column 4.
+	 * @param size of the grid
+	 * @return
+	 */
+	public String gridToString(int size) {
+		String res = "[";
+		for(HashMap.Entry<Integer,Clause> e : this.clauses.entrySet()) {
+			res+= e.getValue().gridToString(size);
+			res+= " ^ ";
+		}
+		res+="]";
+		res = res.substring(0,res.lastIndexOf("^")-1) + res.substring(res.lastIndexOf("^")+2);
+		
+		return res;
+	}
 
 	@Override
 	public String toString() {
@@ -72,7 +93,6 @@ public class CNF {
 	 * @return
 	 * @throws CNFException 
 	 */
-	
 	public boolean isValid() throws CNFException {
 		for(HashMap.Entry<Integer,Clause> e : this.clauses.entrySet()) {
 			if(e.getValue().isValid()) {
@@ -189,4 +209,34 @@ public class CNF {
 			System.out.println(this.getClauses().get(clause_id).toString());
 		}
 	}
+	
+	/**
+	 * Instanciate all the literals of the variables so to have no null literal
+	 * Returns an error if variables haven't been instanciated
+	 * Should only be used when created a new formula
+	 * @throws CNFException 
+	 */
+	public void initLiterals() throws CNFException {
+		
+		if(this.variables == null) {
+			throw new CNFException("Variables have not been instanciated");
+		}
+		Literal[] lit = new Literal[this.getVariables().getSize()*2];
+		for(int i = 0; i < this.getVariables().getSize();i++) {
+			int pos = i;
+			int neg = lit.length-1-i;
+			lit[pos] = new Literal(i,false);
+			lit[neg] = new Literal(i,true);
+			lit[pos].setFormula(this);
+			lit[neg].setFormula(this);
+		}
+		
+		this.literals = lit;
+		
+	}
+	
+	
+	/**
+	 * Remove all duplicates
+	 */
 }

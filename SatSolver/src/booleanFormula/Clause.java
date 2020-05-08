@@ -1,6 +1,8 @@
 package booleanFormula;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -10,7 +12,7 @@ import java.util.Random;
  */
 public class Clause {
 	
-	private ArrayList<Integer> literals = new ArrayList<Integer>();
+	private List<Integer> literals = new ArrayList<Integer>();
 	private static int count = 0;
 	private int id;
 	private CNF formula;
@@ -24,7 +26,7 @@ public class Clause {
 		this.literals = literals;
 		this.id = count++;
 	}
-	public ArrayList<Integer> getLiterals() {
+	public List<Integer> getLiterals() {
 		return literals;
 	}
 	public void setLiterals(ArrayList<Integer> literals) {
@@ -41,7 +43,7 @@ public class Clause {
 	public void removeLiteral(int lit_id) {
 		//first we remove the current clause from the literal list of clauses.
 		this.formula.getLiterals()[lit_id].removeClause(this.getId());
-		this.literals.remove(Integer.valueOf(lit_id));
+		this.literals.removeAll(Arrays.asList(Integer.valueOf(lit_id)));
 		
 	}
 
@@ -51,7 +53,7 @@ public class Clause {
 	
 	public boolean isValid() throws CNFException {
 		for(Integer i : this.literals) {
-			int val = this.formula.literals[i].getVal();
+			int val = this.formula.getLiterals()[i].getVal();
 			if(val == -1) {
 				throw new CNFException("la variable %d n'a pas de valuation" + Math.abs(i));
 			}
@@ -74,10 +76,10 @@ public class Clause {
 	public int clauseSituation() throws CNFException {
 		int unassigned = 0;
 		for(Integer i : this.literals) {
-			if(this.formula.literals[i] == null) {
+			if(this.formula.getLiterals()[i] == null) {
 				continue;
 			}
-			int val = this.formula.literals[i].getVal();
+			int val = this.formula.getLiterals()[i].getVal();
 			if(val == 1) {
 				return 1;
 			}
@@ -97,7 +99,7 @@ public class Clause {
 		String res = "(";
 		for(int i = 0;i<literals.size();i++) {
 			int l_id = literals.get(i);
-			res += formula.literals[l_id].toString();
+			res += formula.getLiterals()[l_id].toString();
 			if(i!=literals.size()-1) {
 				res += " "+ "v"+" ";
 			}
@@ -106,11 +108,16 @@ public class Clause {
 		return res;
 	}
 	
-	public String sudToString() {
+	/**
+	 * print the clause in the style associated with grid-like problem (e.g. sudoku or latin square)
+	 * @param size
+	 * @return
+	 */
+	public String gridToString(int size) {
 		String res = "(";
 		for(int i = 0;i<literals.size();i++) {
 			int l_id = literals.get(i);
-			res += formula.literals[l_id].sudToString();
+			res += formula.getLiterals()[l_id].gridToString(size);
 			if(i!=literals.size()-1) {
 				res += " "+ "v"+" ";
 			}

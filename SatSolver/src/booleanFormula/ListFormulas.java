@@ -35,7 +35,7 @@ public class ListFormulas {
 		ListFormulas res = new ListFormulas();
 		for(int i = 0; i<this.getSize();i++) {
 			try {
-				CNF phi = Tools.cloneFormula(this.getPhi(i));
+				CNF phi = Tools.cleanClone(this.getPhi(i));
 				res.addPhi(phi);
 			} catch (CNFException e) {
 				// TODO Auto-generated catch block

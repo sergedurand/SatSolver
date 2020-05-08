@@ -141,7 +141,7 @@ public class SudokuTools {
 			e.printStackTrace();
 		}
 		
-		res.literals =literals;
+		res.setLiterals(literals);
 		return res;
 
 	}
@@ -149,7 +149,7 @@ public class SudokuTools {
 
 	
 	/**
-	 * save a CNF as a Dimacs file. Comments should be properly formatted or null
+	 * save a CNF representing a sudoku as a Dimacs file. Comments should be properly formatted or null
 	 * @param formule
 	 * @param filename
 	 * @param comments
@@ -164,9 +164,9 @@ public class SudokuTools {
 			Clause c = e.getValue();
 			String line = "";
 			for(Integer i : c.getLiterals()) {
-				String lit_id = formule.literals[i].sudToString();
+				String lit_id = formule.getLiterals()[i].gridToString(9);
 				String res = "";
-				if(formule.literals[i].isNeg()) {
+				if(formule.getLiterals()[i].isNeg()) {
 					res += "-" + lit_id.charAt(2) + lit_id.charAt(3) + lit_id.charAt(4);
 				}else {
 					res += lit_id.charAt(1) + lit_id.charAt(2) + lit_id.charAt(3);

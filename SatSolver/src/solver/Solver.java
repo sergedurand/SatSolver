@@ -11,5 +11,7 @@ public interface Solver {
 	public void updateSolver(CNF Formula);
 
 	public boolean solveRec(CNF phi) throws CNFException, SolverTimeoutException;
+
+	int[] getInterpretation();
 	
 }

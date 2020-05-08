@@ -44,10 +44,6 @@ public class Benchmark {
 		int cpt = 0;
 		for(CNF phi : bench_formulas) {
 			try {
-				long start_clone = System.nanoTime();
-				phi = Tools.cloneFormula(phi);
-				long elapsed_clone = System.nanoTime()-start_clone;
-				clone_time += elapsed_clone;
 				boolean res = s.solveRec(phi);
 				if(res) {
 					System.out.println("SAT");

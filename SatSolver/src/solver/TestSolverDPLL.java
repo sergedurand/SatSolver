@@ -15,7 +15,7 @@ public class TestSolverDPLL {
 	public static void main(String[] args) throws CNFException, SolverTimeoutException {
 		SolverDPLL s = new SolverDPLL();
 		
-		String path = "/home/serge/Documents/ProjetAI/SatSolver/SatSolver/data/benchmark/uf50-218";
+		String path = "C:\\Users\\Serge\\Documents\\Maths\\M1 JH ENS\\Projet Logique\\Projet\\SatSolver\\SAT";
 		List<String> benchmark = Tools.listFiles(path);
 		ArrayList<CNF> bench_formulas = new ArrayList<CNF>();
 

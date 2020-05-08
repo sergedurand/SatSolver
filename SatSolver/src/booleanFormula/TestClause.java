@@ -22,9 +22,13 @@ public class TestClause {
 		for(int i = 0; i<c.getLiterals().size();i++) {
 			System.out.println(c.getLiterals().get(i));
 		}
-		Clause c2 = c.clone();
-		c2.setFormula(res);
-		System.out.println(c2);
+		
+		c.addLiteral(l.getId());
+		System.out.println(c);
+		c.removeLiteral(1);
+		System.out.println(c);
+
+
 
 	}
 

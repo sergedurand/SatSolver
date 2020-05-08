@@ -1,22 +1,29 @@
 package latinSquare;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import booleanFormula.CNF;
+import booleanFormula.CNFException;
+import booleanFormula.Clause;
+import booleanFormula.Variables;
+import solver.SolverDPLL;
+import solver.SolverTimeoutException;
+import tools.Tools;
+
 public class TestLatin {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws CNFException, SolverTimeoutException {
 		// TODO Auto-generated method stub
 		int size = 2;
-		for(int i = 0;i<8;i++) {
-			int[] indices = LatinSquare.intToIndices(i, size);
-			System.out.println(LatinSquare.indicesToString(indices));
-		}
-		System.out.println("test 2");
-		for(int i = 0;i<size;i++) {
-			for(int j= 0;j<size;j++) {
-				for(int k = 0; k < size; k++) {
-					System.out.println(LatinSquare.indicesToInt(i, j, k, size));
-				}
-			}
-		}
+		LatinSquare sq2 = new LatinSquare(size);
+		System.out.println(sq2.getPhi().gridToString(size));
+		CNF phi = sq2.getPhi();
+		phi.printStat();
+		SolverDPLL s = new SolverDPLL();
+		System.out.println(s.solve(phi));
+		sq2.solveSquare(s);
+		System.out.println(sq2);
 	}
 
 }

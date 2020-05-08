@@ -149,6 +149,14 @@ public class SolverNaive implements Solver {
 		long start_time = System.nanoTime();
 		return solveRecCall(phi,0,start_time);
 	}
+
+	public int[] getInterpretation() {
+		return interpretation;
+	}
+
+	public void setInterpretation(int[] interpretation) {
+		this.interpretation = interpretation;
+	}
 	
 	
 
