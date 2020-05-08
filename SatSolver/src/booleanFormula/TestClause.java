@@ -19,9 +19,6 @@ public class TestClause {
 		res.setLiterals(literals);
 		c.addLiteral(l.getId());
 		res.addClause(c);
-		for(int i = 0; i<c.getLiterals().size();i++) {
-			System.out.println(c.getLiterals().get(i));
-		}
 		
 		c.addLiteral(l.getId());
 		System.out.println(c);

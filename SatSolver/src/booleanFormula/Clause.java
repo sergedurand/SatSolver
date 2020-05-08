@@ -2,8 +2,11 @@ package booleanFormula;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * 
@@ -12,7 +15,7 @@ import java.util.Random;
  */
 public class Clause {
 	
-	private List<Integer> literals = new ArrayList<Integer>();
+	private LinkedHashSet<Integer> literals = new LinkedHashSet<Integer>();
 	private static int count = 0;
 	private int id;
 	private CNF formula;
@@ -21,15 +24,15 @@ public class Clause {
 		super();
 		this.id = count++;
 	}
-	public Clause(ArrayList<Integer> literals) {
+	public Clause(LinkedHashSet<Integer> literals) {
 		super();
 		this.literals = literals;
 		this.id = count++;
 	}
-	public List<Integer> getLiterals() {
+	public Set<Integer> getLiterals() {
 		return literals;
 	}
-	public void setLiterals(ArrayList<Integer> literals) {
+	public void setLiterals(LinkedHashSet<Integer> literals) {
 		this.literals = literals;
 	}
 	public int getId() {
@@ -97,10 +100,11 @@ public class Clause {
 	@Override
 	public String toString() {
 		String res = "(";
-		for(int i = 0;i<literals.size();i++) {
-			int l_id = literals.get(i);
+		Iterator<Integer> it = this.literals.iterator();
+		while(it.hasNext()) {
+			int l_id = it.next();
 			res += formula.getLiterals()[l_id].toString();
-			if(i!=literals.size()-1) {
+			if(it.hasNext()) {
 				res += " "+ "v"+" ";
 			}
 		}
@@ -115,10 +119,11 @@ public class Clause {
 	 */
 	public String gridToString(int size) {
 		String res = "(";
-		for(int i = 0;i<literals.size();i++) {
-			int l_id = literals.get(i);
+		Iterator<Integer> it = this.literals.iterator();
+		while(it.hasNext()){
+			int l_id = it.next();
 			res += formula.getLiterals()[l_id].gridToString(size);
-			if(i!=literals.size()-1) {
+			if(it.hasNext()) {
 				res += " "+ "v"+" ";
 			}
 		}
@@ -141,9 +146,9 @@ public class Clause {
 	}
 	
 	public Clause clone() {
-		ArrayList<Integer> new_lit = new ArrayList<Integer>(this.literals.size());
-		for(int i = 0;i<this.literals.size();i++) {
-			new_lit.add(this.literals.get(i));
+		LinkedHashSet<Integer> new_lit = new LinkedHashSet<Integer>(this.literals.size());
+		for(int l_id : this.literals) {
+			new_lit.add(l_id);
 		}
 		
 		return new Clause(new_lit);
@@ -176,6 +181,11 @@ public class Clause {
 			}
 		}
 		return false;
+	}
+	
+	public void cleanDuplicates() {
+		for(int i : this.literals) {
+		}
 	}
 
 	

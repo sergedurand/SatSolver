@@ -89,7 +89,7 @@ public class DimacsParser {
 				}
 				if(line.length()>=2 && (line.charAt(line.length()-1) == '0' && line.charAt(line.length()-2) == ' ')) {
 					//reading a clause
-					line = line.trim().replaceAll(" +", " ").replaceAll("\t", " ").replaceAll("\n"," "); // clean all spaces and potential tab
+					line = line.trim().replaceAll(" +", " ").replaceAll("\t", " ").replaceAll("\\r\\n|\\r|\\n"," "); // clean all spaces and potential tab
 					String[] tab = line.split(" +");
 					Clause cl = new Clause();
 					cl.setFormula(res);

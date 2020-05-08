@@ -42,32 +42,35 @@ public class SolverDPLL implements Solver {
 	 * Remove all negative literals caused by the assignment from the remaining clauses
 	 * @throws CNFException 
 	 */
-	public void removeSatClauses(int var_id, CNF phi) throws CNFException {
-		ArrayList<Integer> clauses_id = phi.getClauseID();
+	public CNF removeSatClauses(int var_id, CNF phi) throws CNFException {
+		CNF res = Tools.cleanClone(phi);
+		ArrayList<Integer> clauses_id = res.getClauseID();
 		int lit_pos;
 		int lit_neg;
 		//we get the index of the positive and negative literal according to the variable valuation
-		if(phi.getInterpretation()[var_id] == 1) {
+		if(res.getInterpretation()[var_id] == 1) {
 			lit_pos = var_id;
-			lit_neg = phi.getLiterals().length-1-var_id;
-		}else if(phi.getInterpretation()[var_id] == 0) {
-			lit_pos = phi.getLiterals().length-1-var_id;
+			lit_neg = res.getLiterals().length-1-var_id;
+		}else if(res.getInterpretation()[var_id] == 0) {
+			lit_pos = res.getLiterals().length-1-var_id;
 			lit_neg = var_id;
 		}else {
 			throw new CNFException("Trying to remove clauses with an unassigned variable : " + var_id); 
 		}
 		//every clauses containing literal[lit_pos] is satisfied, we can remove them
 		for(int id : clauses_id) {
-			if(phi.getClauses().get(id).hasLit(lit_pos)) {
-				phi.removeClause(id);
+			if(res.getClauses().get(id).hasLit(lit_pos)) {
+				res.removeClause(id);
 			}
 		}
 		
 		//we remove every negative literals
-		clauses_id = phi.getClauseID();
+		clauses_id = res.getClauseID();
 		for(int id : clauses_id) {
-			phi.getClauses().get(id).removeLiteral(lit_neg);
+			res.getClauses().get(id).removeLiteral(lit_neg);
 		}
+		
+		return res;
 	}
 	
 	
@@ -84,7 +87,7 @@ public class SolverDPLL implements Solver {
 		for(int id : clauses_id) {
 			Clause c = phi.getClauses().get(id);
 			if(c.isUnit()) {
-				int lit_id = c.getLiterals().get(0);
+				int lit_id = c.getLiterals().iterator().next();
 				int var_id = phi.getLiterals()[lit_id].getId();
 				int val = 1;
 				if(phi.getLiterals()[lit_id].isNeg()) {
@@ -112,10 +115,6 @@ public class SolverDPLL implements Solver {
 		boolean backtracking = false;
 		long elapsed_time;
 		while(true) {
-			if(phi.satSituation() == 1) {
-				this.solved = true;
-				return true;
-			}
 			elapsed_time = (System.nanoTime()-start_time)/1_000_000_000;
 			if(elapsed_time > 5) {
 				throw new SolverTimeoutException("Over 5 seconds");
@@ -155,7 +154,7 @@ public class SolverDPLL implements Solver {
 					if(elapsed_time > 5) {
 						throw new SolverTimeoutException("Over 5 seconds");
 					}
-					removeSatClauses(var, phi);
+					phi = removeSatClauses(var, phi);
 					empty = phi.hasEmptyClause();
 					if(empty) {
 						break;
@@ -166,7 +165,7 @@ public class SolverDPLL implements Solver {
 					}
 
 					phi.getVariables().setVal(assigned_var[0], assigned_var[1]);
-					removeSatClauses(assigned_var[0], phi);
+					phi = removeSatClauses(assigned_var[0], phi);
 
 					empty = phi.hasEmptyClause();
 					if(empty) {
@@ -185,7 +184,7 @@ public class SolverDPLL implements Solver {
 					phi = cur_pair.getFormula();
 					assigned_var[0] = 0;
 					while(true) {
-						removeSatClauses(var, phi);
+						phi = removeSatClauses(var, phi);
 						empty = phi.hasEmptyClause();
 						if(empty) {
 							break;
@@ -195,7 +194,7 @@ public class SolverDPLL implements Solver {
 							break;
 						}
 						phi.getVariables().setVal(assigned_var[0], assigned_var[1]);
-						removeSatClauses(assigned_var[0], phi);
+						phi = removeSatClauses(assigned_var[0], phi);
 						empty = phi.hasEmptyClause();
 						if(empty) {
 							break;
@@ -228,7 +227,7 @@ public class SolverDPLL implements Solver {
 				//no need to add to explored variables: we won't backtrack again to here
 				assigned_var[0] = 0;
 				while(true) {
-					removeSatClauses(var, phi);
+					phi = removeSatClauses(var, phi);
 					empty = phi.hasEmptyClause();
 					if(empty) {
 						break;
@@ -238,7 +237,7 @@ public class SolverDPLL implements Solver {
 						break;
 					}
 					phi.getVariables().setVal(assigned_var[0], assigned_var[1]);
-					removeSatClauses(assigned_var[0], phi);
+					phi = removeSatClauses(assigned_var[0], phi);
 					empty = phi.hasEmptyClause();
 					if(empty) {
 						break;
@@ -303,7 +302,7 @@ public class SolverDPLL implements Solver {
 				VariablesExplored.push(new PairVariableFormula(var,phi1)); 
 				//we run unit propagation and pure literal elimination until impossible;
 				empty = false;
-				removeSatClauses(var, phi);
+				phi = removeSatClauses(var, phi);
 				empty = phi.hasEmptyClause();
 
 				if(!empty) {
@@ -316,7 +315,7 @@ public class SolverDPLL implements Solver {
 					PairVariableFormula cur_pair = VariablesExplored.pop();
 					var = cur_pair.getVariable();
 					phi = cur_pair.getFormula();
-					removeSatClauses(var, phi);
+					phi = removeSatClauses(var, phi);
 					empty = phi.hasEmptyClause();
 
 					if(!empty) {
@@ -345,7 +344,7 @@ public class SolverDPLL implements Solver {
 				phi = cur_pair.getFormula();
 				//no need to get a specific val, when backtracking we know we have only assignment 1 left.
 				//no need to add to explored variables: we won't backtrack again to here
-				removeSatClauses(var, phi);
+				phi = removeSatClauses(var, phi);
 				empty = phi.hasEmptyClause();
 				if(!empty) {
 					//we can continue 
@@ -388,9 +387,9 @@ public class SolverDPLL implements Solver {
 		CNF phi1 = Tools.cleanClone(phi);
 		CNF phi2 = Tools.cleanClone(phi);
 		phi1.getVariables().setVal(i, 0);
-		removeSatClauses(i, phi1);
+		phi1 = removeSatClauses(i, phi1);
 		phi2.getVariables().setVal(i, 1);
-		removeSatClauses(i, phi2);
+		phi2 = removeSatClauses(i, phi2);
 		return solveAppelRec(phi1,i+1,trace,start_time) || solveAppelRec(phi2,i+1,trace,start_time);		
 	}
 	

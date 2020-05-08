@@ -14,6 +14,8 @@ import tools.Tools;
 public class TestSolverDPLL {
 	public static void main(String[] args) throws CNFException, SolverTimeoutException {
 		SolverDPLL s = new SolverDPLL();
+		System.out.println(System.getProperty("line.separator"));
+		CNF phi = DimacsParser.CNFfromDIMACS2("C:\\Users\\Serge\\Documents\\Maths\\M1 JH ENS\\Projet Logique\\Projet\\SatSolver\\SAT\\par8-1-c.cnf");
 		
 		String path = "C:\\Users\\Serge\\Documents\\Maths\\M1 JH ENS\\Projet Logique\\Projet\\SatSolver\\SAT";
 		List<String> benchmark = Tools.listFiles(path);
@@ -22,7 +24,7 @@ public class TestSolverDPLL {
 		try {
 			for(String filename : benchmark) {
 				System.out.println(filename);
-				CNF phi = DimacsParser.CNFfromDIMACS2(filename);
+				CNF phi2 = DimacsParser.CNFfromDIMACS2(filename);
 				bench_formulas.add(phi);
 			}
 		} catch (CNFException e) {
@@ -33,7 +35,7 @@ public class TestSolverDPLL {
 		long start_time = System.nanoTime();
 		long clone_time = 0;
 		int cpt = 0;
-		for(CNF phi : bench_formulas) {
+		for(CNF phi2 : bench_formulas) {
 			try {
 				boolean res = s.solve(phi);
 				if(res) {
