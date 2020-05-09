@@ -15,9 +15,7 @@ public class SequentialAMO implements AMO {
 	public void addConstraint(int[] variables, CNF phi) throws AMOException, CNFException {
 		int n = variables.length;
 		int nb_new = n-1;
-		System.out.println(nb_new);
 		phi.addVariables(nb_new);
-		phi.printStat();
 		int var_or = phi.getVariables().getSize();
 		Literal[] literals = phi.getLiterals();
 		int[] new_var_idx = new int[nb_new];

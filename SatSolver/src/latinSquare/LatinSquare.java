@@ -157,9 +157,12 @@ public class LatinSquare {
 		for(int i = 0; i < n; i++) {
 			for(int k = 0; k<n;k++) {
 				int[] cur_row = new int[n];
+				String row = "row " + i +": ";
 				for(int j = 0;j<n ; j++) {
 					cur_row[j] = indicesToInt(i,j,k,n);
+					row += "" + cur_row[j] + ", ";
 				}
+				System.err.println(row);
 				a.addConstraint(cur_row, res);			
 			}
 		}
@@ -203,6 +206,19 @@ public class LatinSquare {
 		}
 		
 		return res;
+	}
+	
+	/**
+	 * Set the value in coordinates (i,j) to k
+	 * @param i
+	 * @param j
+	 * @param k
+	 * @throws CNFException 
+	 */
+	public void setVal(int i, int j,int k) throws CNFException {
+		this.grid[i][j] = k+1;
+		int var = indicesToInt(i, j, k, this.size);
+		this.phi.getVariables().setVal(var, 1);
 	}
 	public CNF getPhi() {
 		return phi;
