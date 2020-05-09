@@ -19,9 +19,16 @@ public class TestFormulas {
 		CNF phi = Tools.CNFfromDIMACS("p 3 3 \n -1 2 0\n 1 3 0\n 3 -2 0\n");
 		System.out.println(phi);
 		phi.printStat();
+		for(int i = 0;i<phi.getLiterals().length;i++) {
+			System.out.println(phi.getLiterals()[i]);
+		}
+		
 		phi.addVariables(2);
 		phi.printStat();
-
+		
+		for(int i = 0;i<phi.getLiterals().length;i++) {
+			System.out.println(phi.getLiterals()[i]);
+		}
 		
 	
 	}	

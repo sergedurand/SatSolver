@@ -110,6 +110,23 @@ public class SolverDPLL implements Solver {
 	public boolean solve(CNF phi) throws CNFException, SolverTimeoutException {
 		long start_time = System.nanoTime();
 		LinkedList<Integer> VariablesLeft = phi.getUnassigned();
+		for(int i = 0;i<phi.getVariables().getSize();i++) {
+			if(phi.getVariables().getVal(i)==0) {
+				Clause c = new Clause();
+				c.setFormula(phi);
+				c.addLiteral(phi.getLiterals().length-1-i);
+				phi.addClause(c);
+				phi.getLiterals()[phi.getLiterals().length-1-i].addClause(c.getId());
+				phi.getVariables().addClause(c.getId(), i);
+			}else if(phi.getVariables().getVal(i)==1) {
+				Clause c = new Clause();
+				c.setFormula(phi);
+				c.addLiteral(i);
+				phi.getLiterals()[i].addClause(c.getId());
+				phi.getVariables().addClause(c.getId(), i);
+				phi.addClause(c);
+			}
+		}
 		LinkedList<PairVariableFormula> VariablesExplored = new LinkedList<PairVariableFormula>();
 		int var = -1;
 		boolean backtracking = false;

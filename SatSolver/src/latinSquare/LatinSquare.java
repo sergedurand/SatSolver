@@ -7,6 +7,8 @@ import booleanFormula.CNFException;
 import booleanFormula.Clause;
 import booleanFormula.Literal;
 import booleanFormula.Variables;
+import constraintEncoding.AMO;
+import constraintEncoding.AMOException;
 import solver.Solver;
 import solver.SolverTimeoutException;
 import tools.Tools;
@@ -112,7 +114,7 @@ public class LatinSquare {
 	public void solveSquare(Solver s) throws SolverTimeoutException, CNFException {
 		s.solve(this.phi);
 		int[] assignment = s.getInterpretation();
-		for(int i = 0; i < assignment.length ; i++) {
+		for(int i = 0; i < this.size*this.size*this.size ; i++) {
 			if(assignment[i] == 1) {
 				int x = i/(this.size*this.size)+1;
 				int y = (i/this.size)%this.size+1;
@@ -120,6 +122,59 @@ public class LatinSquare {
 				this.grid[x-1][y-1] = k;
 			}
 		}
+	}
+	
+	/**
+	 * this constructor use an at most one clause generator
+	 * @param a
+	 * @param n
+	 * @throws CNFException 
+	 * @throws AMOException 
+	 */
+	public LatinSquare(AMO a, int n) throws CNFException, AMOException {
+		this.size = n;
+		this.grid = new int[n][n];
+		CNF res = new CNF();
+		Variables variables = new Variables(n*n*n);
+		res.setVariables(variables);
+		res.initLiterals();
+		//we ensure every cell is assigned a number
+		for(int i = 0;i<n;i++) {
+			for(int j = 0;j<n ;j++) {
+				Clause c = new Clause();
+				c.setFormula(res);
+				for(int k = 0;k<n;k++) {
+					int lit_id = indicesToInt(i, j, k, n);
+					c.addLiteral(lit_id);
+					res.getLiterals()[lit_id].addClause(c.getId());
+					res.getVariables().addClause(c.getId(), lit_id);
+				}
+				res.addClause(c);
+			}
+		}
+		
+		//every row is a permutation
+		for(int i = 0; i < n; i++) {
+			for(int k = 0; k<n;k++) {
+				int[] cur_row = new int[n];
+				for(int j = 0;j<n ; j++) {
+					cur_row[j] = indicesToInt(i,j,k,n);
+				}
+				a.addConstraint(cur_row, res);			
+			}
+		}
+		
+		//every column is a permutation
+		for(int j = 0;j<n;j++) {
+			for(int k = 0;k<n;k++) {
+				int[] cur_col = new int[n];
+				for(int i = 0; i<n; i++) {
+					cur_col[i] = indicesToInt(i,j,k,n);
+				}
+				a.addConstraint(cur_col, res);
+			}
+		}
+		this.phi = res;
 	}
 	
 	@Override
@@ -151,6 +206,10 @@ public class LatinSquare {
 	}
 	public CNF getPhi() {
 		return phi;
+	}
+	
+	public void printStat() {
+		phi.printStat();
 	}
 	
 }

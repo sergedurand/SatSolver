@@ -75,7 +75,7 @@ public class SolverNaive implements Solver {
 	}
 	
 	/**
-	 * Return the binary string of i (itself a binary string)
+	 * Return the binary string of i+1 (itself a binary string)
 	 * coded on max bits
 	 * @param s
 	 * @param max

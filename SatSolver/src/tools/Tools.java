@@ -115,7 +115,7 @@ public class Tools {
 					nb_var = Integer.parseInt(tab[2]);
 					Variables variables = new Variables(nb_var);
 					res.setVariables(variables);
-					literals = new Literal[nb_var*2];
+					literals = res.getLiterals();
 				}
 				
 				else { //reading the clauses
@@ -128,25 +128,11 @@ public class Tools {
 					for(int i = 0;i<tab.length-1;i++) {//browsing the literals
 						int var = Math.abs(Integer.parseInt(tab[i]))-1;
 						int id_lit = Integer.parseInt(tab[i]);
-						Literal l = new Literal();
 						if(id_lit<0) {
 							id_lit = literals.length+id_lit;
-							l.setNeg(true);
-							if(literals[id_lit]==null) {
-								literals[id_lit] = l;
-								literals[id_lit].setId(var);
-							}
-							
 						}else {
-							l.setNeg(false);
 							id_lit = id_lit-1;
-							if(literals[id_lit]==null) {
-								literals[id_lit] = l;
-								literals[id_lit].setId(var);
-							}
 						}
-						
-						
 						literals[id_lit].addClause(cl.getId());
 						literals[id_lit].setFormula(res);
 						res.getVariables().addClause(cl.getId(), var);

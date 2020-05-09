@@ -39,8 +39,10 @@ public class Clause {
 		return id;
 	}
 	
-	public void addLiteral(int lit_id) {
+	public void addLiteral(int lit_id) throws CNFException {
 		this.literals.add(lit_id);
+		this.formula.getLiterals()[lit_id].addClause(this.id);
+		this.formula.getVariables().addClause(this.id, this.formula.getLiterals()[lit_id].getId());
 	}
 	
 	public void removeLiteral(int lit_id) {

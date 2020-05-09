@@ -52,9 +52,16 @@ public class CNF {
 	public Variables getVariables() {
 		return variables;
 	}
-
-	public void setVariables(Variables variables) {
+	
+	/**
+	 * This also reset all literals.
+	 * THis shouldn't be used to update the interpretation
+	 * @param variables
+	 * @throws CNFException 
+	 */
+	public void setVariables(Variables variables) throws CNFException {
 		this.variables = variables;
+		this.initLiterals();
 	}
 	
 	/**
@@ -269,16 +276,19 @@ public class CNF {
 			new_literals[lit_pos].setId(i+size_or);
 			new_literals[lit_neg].setId(i+size_or);
 			new_literals[lit_pos].setFormula(this);
-			new_literals[lit_pos].setFormula(this);
+			new_literals[lit_neg].setFormula(this);
 		}
+		
 		
 		Literal[] lit_pos = new Literal[n];
 		System.arraycopy(new_literals, 0, lit_pos, 0, n);
 		Literal[] lit_neg = new Literal[n];
 		System.arraycopy(new_literals, n, lit_neg, 0, n);
+		
 		Literal[] final_lit = new Literal[this.getLiterals().length+n*2];
 		System.arraycopy(this.getLiterals(),0,final_lit,0,size_or);
-		System.arraycopy(this.getLiterals(), size_or, final_lit, final_lit.length-1-size_or, size_or);
+		System.arraycopy(this.getLiterals(), size_or, final_lit, final_lit.length-size_or, size_or);
+
 		
 		//we have to update the shifting in every clauses...
 		for(HashMap.Entry<Integer,Clause> e : this.clauses.entrySet()) {
