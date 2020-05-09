@@ -213,9 +213,9 @@ public class Tools {
 	 * @param filename
 	 * @param comments
 	 */
-	public static void DimacsFromCNF(CNF formule, String path,String filename, String comments) {
+	public static void DimacsFromCNF(CNF formule,String filename, String comments) {
 		String dimacs = "";
-		String full_path = "./" + path +filename+".cnf";
+		String path = "./"+filename+".cnf";
 		if(comments != null) {dimacs += comments;} //we assume comments are already in proper format
 		String first_line = "p cnf " + formule.getVariables().getSize() + " " + formule.getClauses().size() +"\n";
 		dimacs += first_line;
@@ -238,7 +238,7 @@ public class Tools {
 			dimacs += line;
 		}
 		
-		try (FileWriter writer = new FileWriter(full_path); BufferedWriter bw = new BufferedWriter(writer)){
+		try (FileWriter writer = new FileWriter(path); BufferedWriter bw = new BufferedWriter(writer)){
 			bw.write(dimacs);
 
 		} catch (IOException e) {

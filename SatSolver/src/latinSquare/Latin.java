@@ -14,16 +14,9 @@ public class Latin {
 		}else {
 			N = Integer.parseInt(args[0]);
 		}
-		String dest_folder;
-		if(args.length < 2) {
-			dest_folder = "./inputs";
-		}else{
-			dest_folder = args[1];
-		}
-		
 		NaiveAMO a = new NaiveAMO();
 		LatinSquare sq = new LatinSquare(a,N);
 		String file_name = "latin_"+N;
-		Tools.DimacsFromCNF(sq.getPhi(), dest_folder, file_name, "");
+		Tools.DimacsFromCNF(sq.getPhi(),file_name, "");
 	}
 }
