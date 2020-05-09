@@ -157,12 +157,9 @@ public class LatinSquare {
 		for(int i = 0; i < n; i++) {
 			for(int k = 0; k<n;k++) {
 				int[] cur_row = new int[n];
-				String row = "row " + i +": ";
 				for(int j = 0;j<n ; j++) {
 					cur_row[j] = indicesToInt(i,j,k,n);
-					row += "" + cur_row[j] + ", ";
 				}
-				System.err.println(row);
 				a.addConstraint(cur_row, res);			
 			}
 		}

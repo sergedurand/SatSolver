@@ -300,7 +300,7 @@ public class CNF {
 				if(lit_id < size_or) {
 					temp.add(lit_id);
 				}else {
-					temp.add(lit_id+n);
+					temp.add(lit_id+2*n);
 				}
 			}
 			c.setLiterals(temp);

@@ -8,8 +8,9 @@ public class CommanderAMO implements AMO {
 
 	@Override
 	public void addConstraint(int[] variables, CNF phi) throws AMOException, CNFException {
-		// TODO Auto-generated method stub
-
+		NaiveAMO a = new NaiveAMO();
+		int m = (int) Math.ceil(variables.length/2);
+		
 	}
 
 	@Override

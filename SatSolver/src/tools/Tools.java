@@ -223,7 +223,7 @@ public class Tools {
 			Clause c = e.getValue();
 			String line = "";
 			for(Integer i : c.getLiterals()) {
-				String lit_id = Integer.toString(formule.getLiterals()[i].getId());
+				String lit_id = Integer.toString(formule.getLiterals()[i].getId()+1);
 				String res = "";
 				if(formule.getLiterals()[i].isNeg()) {
 					res += "-" + lit_id;

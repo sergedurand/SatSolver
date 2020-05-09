@@ -20,24 +20,28 @@ public class TestLatin {
 	public static void main(String[] args) throws CNFException, SolverTimeoutException, AMOException {
 		// TODO Auto-generated method stub
 		SolverDPLL s = new SolverDPLL();
-		int size = 2;
-		SequentialAMO a = new SequentialAMO();
-		LatinSquare sq2 = new LatinSquare(a,size);
-		sq2.setVal(0, 1,1);
-		sq2.setVal(0, 0, 1);
-		Tools.printInterpration(sq2.getPhi().getInterpretation());
-		s.solve(sq2.getPhi());
-		s.printRes();
-		System.out.println(sq2.getPhi().gridToString(size));
-		CNF phi = Tools.cleanClone(sq2.getPhi());
-		sq2.solveSquare(s);
-		Tools.printInterpration(sq2.getPhi().getInterpretation());
-		sq2.printStat();
-		System.out.println(phi.gridToString(size));
-		s.solve(phi);
-		s.printRes();
-		Tools.printInterpration(s.getInterpretation());
-		System.out.println(sq2);
+		int size = 5;
+		NaiveAMO a1 = new NaiveAMO();
+		BinaryAMO a2 = new BinaryAMO();
+		SequentialAMO a3 = new SequentialAMO();
+		for(int i = 2;i<15;i++) {
+			System.out.println("TAILLE = " +i);
+			System.out.println("NAIVE:");
+			LatinSquare sq2 = new LatinSquare(a1,i);
+			sq2.printStat();
+			String title1 = "lsq_naive_" + i;
+			Tools.DimacsFromCNF(sq2.getPhi(), title1, "");
+			System.out.println("BINARY:");
+			sq2 = new LatinSquare(a2,i);
+			sq2.printStat();
+			String title2 = "lsq_binary_" + i;
+			Tools.DimacsFromCNF(sq2.getPhi(), title2, "");
+			System.out.println("SEQUENTIAL");
+			sq2 = new LatinSquare(a3,i);
+			sq2.printStat();
+			String title3 = "lsq_sequential_" + i;
+			Tools.DimacsFromCNF(sq2.getPhi(), title3, "");
+		}
 		
 	}
 
