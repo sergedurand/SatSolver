@@ -177,6 +177,18 @@ public class LatinSquare {
 		this.phi = res;
 	}
 	
+	public void updateGrid() {
+		int[] assignment = phi.getInterpretation();
+		for(int i = 0; i < this.size*this.size*this.size ; i++) {
+			if(assignment[i] == 1) {
+				int x = i/(this.size*this.size)+1;
+				int y = (i/this.size)%this.size+1;
+				int k = i-((x-1)*this.size+(y-1))*this.size+1;
+				this.grid[x-1][y-1] = k;
+			}
+		}
+	}
+	
 	@Override
 	public String toString() {
 		int width = this.size*3 + this.size+1;

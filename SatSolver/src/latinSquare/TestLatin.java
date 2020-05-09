@@ -13,6 +13,7 @@ import constraintEncoding.NaiveAMO;
 import constraintEncoding.SequentialAMO;
 import solver.SolverDPLL;
 import solver.SolverTimeoutException;
+import tools.ModelParser;
 import tools.Tools;
 
 public class TestLatin {
@@ -21,27 +22,12 @@ public class TestLatin {
 		// TODO Auto-generated method stub
 		SolverDPLL s = new SolverDPLL();
 		int size = 5;
-		NaiveAMO a1 = new NaiveAMO();
-		BinaryAMO a2 = new BinaryAMO();
-		SequentialAMO a3 = new SequentialAMO();
-		for(int i = 2;i<15;i++) {
-			System.out.println("TAILLE = " +i);
-			System.out.println("NAIVE:");
-			LatinSquare sq2 = new LatinSquare(a1,i);
-			sq2.printStat();
-			String title1 = "lsq_naive_" + i;
-			Tools.DimacsFromCNF(sq2.getPhi(), title1, "");
-			System.out.println("BINARY:");
-			sq2 = new LatinSquare(a2,i);
-			sq2.printStat();
-			String title2 = "lsq_binary_" + i;
-			Tools.DimacsFromCNF(sq2.getPhi(), title2, "");
-			System.out.println("SEQUENTIAL");
-			sq2 = new LatinSquare(a3,i);
-			sq2.printStat();
-			String title3 = "lsq_sequential_" + i;
-			Tools.DimacsFromCNF(sq2.getPhi(), title3, "");
-		}
+		LatinSquare sq = new LatinSquare(10);
+		int[] res = ModelParser.ModelToInterpretation("/home/serge/Documents/ProjetAI/sat20skel/outputs/latin-10.model");
+		sq.getPhi().getVariables().setVariables(res);
+		sq.updateGrid();
+		System.out.println(sq);
+
 		
 	}
 
