@@ -68,7 +68,7 @@ public class SequentialAMO implements AMO {
 		phi.printStat();
 		System.out.println(phi);
 		SolverDPLL s = new SolverDPLL();
-		s.solve(phi);
+		s.solve(phi,10);
 		Tools.printInterpration(s.getInterpretation());
 	}
 

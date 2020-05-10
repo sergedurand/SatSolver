@@ -112,7 +112,7 @@ public class LatinSquare {
 	}
 	
 	public void solveSquare(Solver s) throws SolverTimeoutException, CNFException {
-		s.solve(this.phi);
+		s.solve(this.phi,10);
 		int[] assignment = s.getInterpretation();
 		for(int i = 0; i < this.size*this.size*this.size ; i++) {
 			if(assignment[i] == 1) {

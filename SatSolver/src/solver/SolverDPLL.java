@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import booleanFormula.CNF;
@@ -44,7 +46,7 @@ public class SolverDPLL implements Solver {
 	 */
 	public CNF removeSatClauses(int var_id, CNF phi) throws CNFException {
 		CNF res = Tools.cleanClone(phi);
-		ArrayList<Integer> clauses_id = res.getClauseID();
+		Set<Integer> clauses_id = res.getClauseID();
 		int lit_pos;
 		int lit_neg;
 		//we get the index of the positive and negative literal according to the variable valuation
@@ -58,7 +60,14 @@ public class SolverDPLL implements Solver {
 			throw new CNFException("Trying to remove clauses with an unassigned variable : " + var_id); 
 		}
 		//every clauses containing literal[lit_pos] is satisfied, we can remove them
+		Set<Integer> toRemove = new HashSet<Integer>();
 		for(int id : clauses_id) {
+			if(res.getClauses().get(id).hasLit(lit_pos)) {
+				toRemove.add(id);
+			}
+		}
+		
+		for(int id : toRemove) {
 			if(res.getClauses().get(id).hasLit(lit_pos)) {
 				res.removeClause(id);
 			}
@@ -83,7 +92,7 @@ public class SolverDPLL implements Solver {
 	 */
 	public int[] unitPropagation(CNF phi) {
 		int[] res = {-1};
-		ArrayList<Integer> clauses_id = phi.getClauseID();
+		Set<Integer> clauses_id = phi.getClauseID();
 		for(int id : clauses_id) {
 			Clause c = phi.getClauses().get(id);
 			if(c.isUnit()) {
@@ -107,9 +116,12 @@ public class SolverDPLL implements Solver {
 	 * Implement an iterative version of a DPLL algorithm.
 	 * No optimization on the choice of variables.
 	 */
-	public boolean solve(CNF phi) throws CNFException, SolverTimeoutException {
+	public boolean solve(CNF phi, int timeout) throws CNFException, SolverTimeoutException {
 		long start_time = System.nanoTime();
 		LinkedList<Integer> VariablesLeft = phi.getUnassigned();
+		
+		//some preprocessing: in the case the interpretation has already assigned values
+		//update the formula to add corresponding unit clause
 		for(int i = 0;i<phi.getVariables().getSize();i++) {
 			if(phi.getVariables().getVal(i)==0) {
 				Clause c = new Clause();
@@ -133,8 +145,8 @@ public class SolverDPLL implements Solver {
 		long elapsed_time;
 		while(true) {
 			elapsed_time = (System.nanoTime()-start_time)/1_000_000_000;
-			if(elapsed_time > 5) {
-				throw new SolverTimeoutException("Over 5 seconds");
+			if(elapsed_time > timeout) {
+				throw new SolverTimeoutException("Over " + timeout +" seconds");
 			}
 			int val;
 			int[] assigned_var = {0};
@@ -168,8 +180,8 @@ public class SolverDPLL implements Solver {
 				empty = false;
 				while(true) {
 					elapsed_time = (System.nanoTime()-start_time)/1_000_000_000;
-					if(elapsed_time > 5) {
-						throw new SolverTimeoutException("Over 5 seconds");
+					if(elapsed_time > timeout) {
+						throw new SolverTimeoutException("Over " + timeout+ " seconds");
 					}
 					phi = removeSatClauses(var, phi);
 					empty = phi.hasEmptyClause();

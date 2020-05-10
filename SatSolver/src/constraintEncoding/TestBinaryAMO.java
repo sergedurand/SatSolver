@@ -21,7 +21,7 @@ public class TestBinaryAMO {
 		System.out.println(phi);
 		phi.getVariables().setVal(0, 1);
 		Tools.printInterpration(phi.getVariables().getInterpretation());
-		s.solve(phi);
+		s.solve(phi,10);
 		s.printRes();
 		Tools.printInterpration(s.getInterpretation());
 		phi = s.removeSatClauses(0, phi);

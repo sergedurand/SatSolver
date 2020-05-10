@@ -1,7 +1,9 @@
 package booleanFormula;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.PriorityBlockingQueue;
 
 /**
@@ -15,7 +17,7 @@ public class Literal {
 	private boolean isNeg = false;
 	//contains the list of clauses that uses the literal
 	//as clauses should have unique ID maybe a priority queue would be better for efficiency
-	private PriorityBlockingQueue<Integer> clauses = new PriorityBlockingQueue<Integer>(); 
+	private Set<Integer> clauses = new HashSet<Integer>(); 
 	
 	public Literal () {
 		super();
@@ -63,10 +65,7 @@ public class Literal {
 	}
 	
 	public void addClause(int clause_ID) {
-		if(!this.clauses.contains(clause_ID)) {
-			this.clauses.add(clause_ID);
-		}
-		return;
+		this.clauses.add(clause_ID);
 	}
 	
 	public void removeClause(int clause_ID) {
@@ -130,10 +129,10 @@ public class Literal {
 		
 		return res;
 	}
-	public PriorityBlockingQueue<Integer> getClauses() {
+	public Set<Integer> getClauses() {
 		return clauses;
 	}
-	public void setClauses(PriorityBlockingQueue<Integer> clauses) {
+	public void setClauses(Set<Integer> clauses) {
 		this.clauses = clauses;
 	}
 	

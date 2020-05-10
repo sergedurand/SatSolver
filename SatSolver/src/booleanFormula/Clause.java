@@ -2,6 +2,7 @@ package booleanFormula;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -15,7 +16,10 @@ import java.util.Set;
  */
 public class Clause {
 	
-	private LinkedHashSet<Integer> literals = new LinkedHashSet<Integer>();
+	private Set<Integer> literals = new HashSet<Integer>();
+	private Set<Integer> activeLiterals = new HashSet<Integer>();
+	private Set<Integer> unactiveLiterals = new HashSet<Integer>();
+	
 	private static int count = 0;
 	private int id;
 	private CNF formula;
@@ -24,9 +28,12 @@ public class Clause {
 		super();
 		this.id = count++;
 	}
-	public Clause(LinkedHashSet<Integer> literals) {
+	public Clause(Set<Integer> literals) {
 		super();
 		this.literals = literals;
+		for(int lit : literals) {
+			this.activeLiterals.add(lit);
+		}
 		this.id = count++;
 	}
 	public Set<Integer> getLiterals() {
@@ -34,6 +41,9 @@ public class Clause {
 	}
 	public void setLiterals(LinkedHashSet<Integer> literals) {
 		this.literals = literals;
+		for(int lit : literals) {
+			this.activeLiterals.add(lit);
+		}
 	}
 	public int getId() {
 		return id;
@@ -41,6 +51,7 @@ public class Clause {
 	
 	public void addLiteral(int lit_id) throws CNFException {
 		this.literals.add(lit_id);
+		this.activeLiterals.add(lit_id);
 		this.formula.getLiterals()[lit_id].addClause(this.id);
 		this.formula.getVariables().addClause(this.id, this.formula.getLiterals()[lit_id].getId());
 	}
@@ -49,7 +60,17 @@ public class Clause {
 		//first we remove the current clause from the literal list of clauses.
 		this.formula.getLiterals()[lit_id].removeClause(this.getId());
 		this.literals.removeAll(Arrays.asList(Integer.valueOf(lit_id)));
-		
+		this.activeLiterals.remove(lit_id);
+	}
+	
+	public void deactivateLiteral(int lit_id) {
+		this.activeLiterals.remove(lit_id);
+		this.unactiveLiterals.add(lit_id);
+	}
+	
+	public void reactivateLiteral(int lit_id) {
+		this.unactiveLiterals.remove(lit_id);
+		this.activeLiterals.add(lit_id);
 	}
 
 	public static void resetCounter() {
@@ -140,11 +161,11 @@ public class Clause {
 	 * @return
 	 */
 	public boolean isUnit() {
-		return (this.getLiterals().size()==1);
+		return (this.activeLiterals.size()==1);
 	}
 	
 	public boolean isEmpty() {
-		return (this.getLiterals().size()==0);
+		return (this.activeLiterals.size()==0);
 	}
 	
 	public Clause clone() {
@@ -177,18 +198,6 @@ public class Clause {
 	}
 	
 	public boolean hasLit(int lit_id) {
-		for(int idx : this.literals) {
-			if(idx == lit_id) {
-				return true;
-			}
-		}
-		return false;
+		return this.literals.contains(lit_id);
 	}
-	
-	public void cleanDuplicates() {
-		for(int i : this.literals) {
-		}
-	}
-
-	
 }

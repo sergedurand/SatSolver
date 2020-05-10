@@ -2,13 +2,15 @@ package booleanFormula;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class Variables {
 	private int[] variables;
-	private LinkedList<Integer>[] clauses;
+	private Set<Integer>[] clauses;
 	
 	/**
 	 * this constructor initialize variables from input
@@ -20,9 +22,9 @@ public class Variables {
 	public Variables(int[] variables) {
 		super();
 		this.variables = variables;
-		this.clauses = new LinkedList[this.variables.length];
+		this.clauses = new HashSet[this.variables.length];
 		for(int i = 0;i<this.variables.length;i++) {
-			this.clauses[i] = new LinkedList<Integer>();
+			this.clauses[i] = new HashSet<Integer>();
 		}
 	}
 	
@@ -38,9 +40,9 @@ public class Variables {
 		for(int i = 0;i<size;i++) {
 			variables[i] = -1;
 		}
-		this.clauses = new LinkedList[this.variables.length];
+		this.clauses = new HashSet[this.variables.length];
 		for(int i = 0;i<this.variables.length;i++) {
-			this.clauses[i] = new LinkedList<Integer>();
+			this.clauses[i] = new HashSet<Integer>();
 		}
 	}
 	
@@ -142,11 +144,11 @@ public class Variables {
 		return this.variables[i] == -1;
 	}
 
-	public LinkedList<Integer>[] getClauses() {
+	public Set<Integer>[] getClauses() {
 		return clauses;
 	}
 
-	public void setClauses(LinkedList<Integer>[] clauses) {
+	public void setClauses(Set<Integer>[] clauses) {
 		this.clauses = clauses;
 	}
 
@@ -167,6 +169,30 @@ public class Variables {
 			}
 		}
 		return res;
+	}
+	
+	public void setValFromTab(int[] var, int[] val) {
+		for(int i = 0;i<var.length;i++) {
+			this.variables[var[i]] = val[i];
+		}
+	}
+	
+	public void setValFromAr(ArrayList<Integer> var, ArrayList<Integer> val) {
+		for(int i = 0; i < var.size();i++) {
+			this.variables[var.get(i)] = val.get(i);
+		}
+	}
+	
+	public void unassignFromTab(int[] var) {
+		for(int i = 0; i <var.length;i++) {
+			this.variables[var[i]] = -1;
+		}
+	}
+	
+	public void unassignFromAr(ArrayList<Integer> var) {
+		for(int idx : var) {
+			this.variables[idx] = -1;
+		}
 	}
 	
 	public void printClauses(int var_id) {

@@ -54,7 +54,7 @@ public class NaiveAMO implements AMO {
 		addConstraint(variables,phi);
 		SolverDPLL s = new SolverDPLL();
 		System.out.println(phi);
-		s.solve(phi);
+		s.solve(phi,10);
 		Tools.printInterpration(s.getInterpretation());
 	}
 

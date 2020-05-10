@@ -36,7 +36,8 @@ public class DimacsParser {
 					nb_var = Integer.parseInt(tab[2]);
 					Variables variables = new Variables(nb_var);
 					res.setVariables(variables);
-					literals = new Literal[nb_var*2];
+					res.initLiterals();
+					literals = res.getLiterals();
 				}else {
 					break; //due to some weird CNF formats we move to caracter reading
 				}

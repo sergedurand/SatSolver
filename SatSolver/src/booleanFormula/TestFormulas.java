@@ -2,7 +2,9 @@ package booleanFormula;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -17,19 +19,24 @@ public class TestFormulas {
 	public static void main(String[] args) throws CNFException {
 		// TODO Auto-generated method stub
 		CNF phi = Tools.CNFfromDIMACS("p 3 3 \n -1 2 0\n 1 3 0\n 3 -2 0\n");
-		System.out.println(phi);
-		phi.printStat();
-		for(int i = 0;i<phi.getLiterals().length;i++) {
-			System.out.println(phi.getLiterals()[i]);
+		LinkedList<Integer> l1 = new LinkedList<Integer>();
+		for(int i = 0; i < 5; i++) {
+			l1.add(i);
 		}
+		l1.addFirst(-1);
+		l1.addFirst(2);
 		
-		phi.addVariables(2);
-		phi.printStat();
-		
-		for(int i = 0;i<phi.getLiterals().length;i++) {
-			System.out.println(phi.getLiterals()[i]);
+		LinkedList<Integer> varToRemove = new LinkedList<Integer>();
+		int var_temp;
+		while((var_temp = l1.removeLast())!= -1) {
+			varToRemove.add(var_temp);
 		}
+		int var = varToRemove.removeLast();
 		
+		System.out.println(var);
+		for(int i : varToRemove) {
+			System.out.println(i);
+		}
 	
 	}	
 

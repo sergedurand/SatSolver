@@ -2,18 +2,23 @@ package booleanFormula;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 
 public class CNF {
 	//we chose a HashMap for faster access to specific clauses (clauses ID != index...)
 	private HashMap<Integer,Clause> clauses = new HashMap<Integer,Clause>(); 
 	private Variables variables; //index is the number of the variable. Value : 0 if valuation to false, 1 to true, -1 if no valuation
 	private Literal[] literals; //literal xi is stored in literals[i] and literal not(xi) is stored in literal[literals.length-i]
+	private ClausesState clauses_state;
+	
 	public CNF() {
 		super();
+		this.clauses_state = new ClausesState();
 	}
 	
 	public CNF(int[] variables) throws CNFException {
@@ -25,6 +30,7 @@ public class CNF {
 		super();
 		this.clauses = clauses;
 		this.variables = new Variables(variables);
+		this.clauses_state = new ClausesState(this);
 	}
 	
 	public CNF(Variables variables) throws CNFException {
@@ -43,6 +49,7 @@ public class CNF {
 	
 	public void addClause(Clause c) {
 		this.clauses.put(c.getId(),c);
+		this.clauses_state.activateClause(c.getId());
 	}
 		
 	
@@ -159,15 +166,15 @@ public class CNF {
 				l.removeClause(clause_ID);
 			}
 		}
+		this.clauses_state.deactivateClause(clause_ID);
 	}
 	
-	public ArrayList<Integer> getClauseID(){
-		ArrayList<Integer> res = new ArrayList<Integer>();
-		for(HashMap.Entry<Integer,Clause> e : this.clauses.entrySet()) {
-			res.add(e.getKey());	
-		}
-		
-		return res;
+	public Set<Integer> getClauseID(){
+		return this.clauses.keySet();
+	}
+	
+	public Set<Integer> getActiveClauses(){
+		return this.clauses_state.getActiveClauses();
 	}
 	
 	/**
@@ -179,8 +186,8 @@ public class CNF {
 	 */
 	public int satSituation() throws CNFException {
 		int res = 1;
-		for(HashMap.Entry<Integer,Clause> e : this.clauses.entrySet()) {
-			Clause c = e.getValue();
+		for(int id : this.clauses_state.getActiveClauses()) {
+			Clause c = this.clauses.get(id);
 			if(c.isEmpty() || c.clauseSituation() == 0) { //one unsatisfiable clause found
 				res=0;
 				break;
@@ -204,8 +211,8 @@ public class CNF {
 	
 
 	public boolean hasEmptyClause() {
-		for(HashMap.Entry<Integer,Clause> e : this.clauses.entrySet()) {
-			Clause c = e.getValue();
+		for(int cl_id : this.clauses_state.getActiveClauses()) {
+			Clause c = this.clauses.get(cl_id);
 			if(c.isEmpty()){
 				return true;
 			}
@@ -260,10 +267,10 @@ public class CNF {
 		System.arraycopy(this.getVariables().getVariables(), 0, res, 0,size_or);
 		System.arraycopy(new_variables, 0, res, size_or, n);
 		this.getVariables().setVariables(res);
-		LinkedList<Integer>[] updated_clauses = new LinkedList[size_or+n];
+		Set<Integer>[] updated_clauses = new HashSet[size_or+n];
 		System.arraycopy(this.getVariables().getClauses(), 0, updated_clauses, 0, size_or);
 		for(int i = 0;i<n;i++) {
-			updated_clauses[i+size_or] = new LinkedList<Integer>();
+			updated_clauses[i+size_or] = new HashSet<Integer>();
 		}
 		
 		this.getVariables().setClauses(updated_clauses);
@@ -311,9 +318,44 @@ public class CNF {
 		System.arraycopy(lit_neg, 0, final_lit, size_or+n, n);
 		this.literals = final_lit;
 	}
+
+	public ClausesState getClauses_state() {
+		return clauses_state;
+	}
+
+	public void setClauses_state(ClausesState clauses_state) {
+		this.clauses_state = clauses_state;
+	}
 	
+	public void deactivateClause(int cl_id) throws CNFException {
+		this.clauses_state.deactivateClause(cl_id);
+	}
+	
+	public void activateClause(int cl_id) throws CNFException {
+		this.clauses_state.activateClause(cl_id);
+	}
+	
+	public void deactivateSetClause(Set<Integer> clauses) throws CNFException {
+		this.clauses_state.deactivateSetClauses(clauses);
+	}
+	
+	public void activateSetClause(Set<Integer> clauses) throws CNFException {
+		this.clauses_state.activateSetClauses(clauses);
+	}
 	
 	/**
-	 * Remove all duplicates
+	 * reactivate all clauses used by var
+	 * @param var
+	 * @throws CNFException 
 	 */
+	public void reactivateSetClause(int var) throws CNFException {
+		this.activateSetClause(this.variables.getClauses()[var]);
+		for(int cl_id : this.variables.getClauses()[var]) {
+			if(this.getClauses().get(cl_id).hasLit(var)) {
+				this.getClauses().get(cl_id).removeLiteral(var);
+			}else {
+				this.getClauses().get(cl_id).removeLiteral(this.getLiterals().length-1-var);
+			}
+		}
+	}
 }

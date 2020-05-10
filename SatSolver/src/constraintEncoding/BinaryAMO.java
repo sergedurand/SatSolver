@@ -61,7 +61,7 @@ public class BinaryAMO implements AMO {
 		addConstraint(variables,phi);
 		System.out.println(phi);
 		SolverDPLL s = new SolverDPLL();
-		s.solve(phi);
+		s.solve(phi,10);
 		Tools.printInterpration(s.getInterpretation());
 	}
 	

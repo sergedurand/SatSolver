@@ -17,6 +17,6 @@ public class Latin {
 		NaiveAMO a = new NaiveAMO();
 		LatinSquare sq = new LatinSquare(a,N);
 		String file_name = "latin_"+N;
-		Tools.DimacsFromCNF(sq.getPhi(),file_name, "");
+		System.out.println(Tools.StringDimacsFromCNF(sq.getPhi(), ""));
 	}
 }

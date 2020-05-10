@@ -32,7 +32,7 @@ public class SolverNaive implements Solver {
 	 * @throws CNFException 
 	 */
 	@Override
-	public boolean solve(CNF formula) throws CNFException {
+	public boolean solve(CNF formula, int timeout) throws CNFException {
 		this.updateSolver(formula);
 		
 		LinkedList<Integer> variablesLeft = new LinkedList<Integer>();
