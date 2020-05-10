@@ -123,7 +123,7 @@ public class Clause {
 	@Override
 	public String toString() {
 		String res = "(";
-		Iterator<Integer> it = this.literals.iterator();
+		Iterator<Integer> it = this.activeLiterals.iterator();
 		while(it.hasNext()) {
 			int l_id = it.next();
 			res += formula.getLiterals()[l_id].toString();

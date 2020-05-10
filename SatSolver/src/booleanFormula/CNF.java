@@ -93,8 +93,9 @@ public class CNF {
 	@Override
 	public String toString() {
 		String res = "[";
-		for(HashMap.Entry<Integer,Clause> e : this.clauses.entrySet()) {
-			res+= e.getValue().toString();
+		for(int cl_id : this.clauses_state.getActiveClauses()) {
+			
+			res+= this.clauses.get(cl_id).toString();
 			res+= " ^ ";
 		}
 		res+="]";
@@ -349,12 +350,13 @@ public class CNF {
 	 * @throws CNFException 
 	 */
 	public void reactivateSetClause(int var) throws CNFException {
+		this.getVariables().setVal(var, -1);
 		this.activateSetClause(this.variables.getClauses()[var]);
 		for(int cl_id : this.variables.getClauses()[var]) {
 			if(this.getClauses().get(cl_id).hasLit(var)) {
-				this.getClauses().get(cl_id).removeLiteral(var);
-			}else {
-				this.getClauses().get(cl_id).removeLiteral(this.getLiterals().length-1-var);
+				this.getClauses().get(cl_id).reactivateLiteral(var);
+			}else{
+				this.getClauses().get(cl_id).reactivateLiteral(this.getLiterals().length-1-var);
 			}
 		}
 	}

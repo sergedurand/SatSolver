@@ -25,11 +25,16 @@ public class TestFormulas {
 		}
 		l1.addFirst(-1);
 		l1.addFirst(2);
-		
+		for(int i : l1) {
+			System.out.println(i);
+		}
 		LinkedList<Integer> varToRemove = new LinkedList<Integer>();
 		int var_temp;
 		while((var_temp = l1.removeLast())!= -1) {
 			varToRemove.add(var_temp);
+		}
+		for(int i : varToRemove) {
+			System.err.println(i);
 		}
 		int var = varToRemove.removeLast();
 		

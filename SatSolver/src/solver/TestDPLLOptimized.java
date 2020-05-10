@@ -11,7 +11,11 @@ import tools.Tools;
 public class TestDPLLOptimized {
 
 	public static void main(String[] args) throws CNFException, SolverTimeoutException {
-		SolverDPLLOptimized s = new SolverDPLLOptimized();	
+		SolverDPLLOptimized s = new SolverDPLLOptimized();
+		CNF phi3 = DimacsParser.CNFfromDIMACS2("./benchmark/kcolor3.cnf");
+		System.out.println(phi3);
+		System.out.println(s.solve(phi3,5));
+		
 		String path = "./benchmark";
 		List<String> benchmark = Tools.listFiles(path);
 		ArrayList<CNF> bench_formulas = new ArrayList<CNF>();
@@ -19,7 +23,7 @@ public class TestDPLLOptimized {
 		try {
 			for(String filename : benchmark) {
 				CNF phi = DimacsParser.CNFfromDIMACS2(filename);
-				System.out.println(filename);
+				System.err.println(filename);
 				bench_formulas.add(phi);
 			}
 		} catch (CNFException e) {
@@ -48,7 +52,6 @@ public class TestDPLLOptimized {
 		long elapsed_time = System.nanoTime()-start_time-clone_time;
 		System.out.println("temps total = " + elapsed_time/1000000 + " ms");
 		System.out.println("Nombre de formule abandonn�e : " + cpt);
-
 	}
 
 }
