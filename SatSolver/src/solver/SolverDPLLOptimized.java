@@ -300,7 +300,7 @@ public class SolverDPLLOptimized implements Solver {
 				Tools.printInterpration(phi.getInterpretation());
 				for(int i = 0; i <phi.getVariables().getSize();i++) {
 					if((phi.getVariables().getVal(i) == -1) && !VariablesLeft.contains(i)){
-						System.err.println(i + " devrait être dans la pile");
+						System.err.println(i + " devrait ï¿½tre dans la pile");
 					}
 				}
 
@@ -728,15 +728,29 @@ public class SolverDPLLOptimized implements Solver {
 		this.solved = false;
 	}
 	
-	@Override
-	public boolean solveRec(CNF phi) throws CNFException, SolverTimeoutException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+
 
 	@Override
 	public int[] getInterpretation() {
 		return interpretation;
+	}
+	
+	public String saveModel() {
+		String res = "";
+		if(this.getInterpretation() == null || this.getInterpretation().length == 0) {
+			res = "no model";
+			return res;
+		}else{
+			for(int i = 0;i<this.getInterpretation().length;i++) {
+				if(this.getInterpretation()[i] ==0) {
+					res+= "-" + (i+1) +" ";
+				}else {
+					res+= "" + (i+1)+ " ";
+				}
+			}
+		}
+		res += "0";
+		return res;
 	}
 
 }

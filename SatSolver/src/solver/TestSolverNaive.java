@@ -27,7 +27,7 @@ public class TestSolverNaive {
 		int cpt = 0;
 		for(CNF phi : benchmark.subList(0, 2)) {
 			try {
-				boolean res = s.solveRec(phi);
+				boolean res = s.solve(phi,10);
 				if(res) {
 					System.out.println("SAT");
 				}else {
@@ -42,7 +42,7 @@ public class TestSolverNaive {
 		}
 		long elapsed_time = System.nanoTime()-start_time;
 		System.out.println("temps total = " + elapsed_time/1000000000 + " s");
-		System.out.println("Nombre de formule abandonnée : " + cpt);
+		System.out.println("Nombre de formule abandonnï¿½e : " + cpt);
 
 
 	

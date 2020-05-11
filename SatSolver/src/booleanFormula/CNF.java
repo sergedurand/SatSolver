@@ -14,6 +14,7 @@ public class CNF {
 	private HashMap<Integer,Clause> clauses = new HashMap<Integer,Clause>(); 
 	private Variables variables; //index is the number of the variable. Value : 0 if valuation to false, 1 to true, -1 if no valuation
 	private Literal[] literals; //literal xi is stored in literals[i] and literal not(xi) is stored in literal[literals.length-i]
+	private Literal[] watched_literals;
 	private ClausesState clauses_state;
 	
 	public CNF() {
@@ -366,4 +367,54 @@ public class CNF {
 			}
 		}
 	}
+	
+	public void initWatchedLiterals() {
+		this.watched_literals = new Literal[this.getLiterals().length];
+		for(int i = 0;i<this.getLiterals().length;i++) {
+			this.watched_literals[i] = new Literal(this.getLiterals()[i].getId(),this.getLiterals()[i].isNeg());
+			this.watched_literals[i].setClauses(new HashSet<Integer>());
+		}
+		
+		for(int cl_id : this.clauses_state.getActiveClauses()) {
+			Iterator<Integer> it = this.clauses.get(cl_id).getLiterals().iterator();
+			int l1 = it.next();
+			int l2 = it.next();
+			this.watched_literals[l1].addClause(cl_id);
+			this.watched_literals[l2].addClause(cl_id);
+		}
+	}
+	
+	public int[] getWatchedLiteral(int cl_id) {
+		int[] res = new int[2];
+		int i = 0;
+		for(int lit_id : this.clauses.get(cl_id).getLiterals()) {//getting the clause is constant
+			if(i>1) {break;}
+			if(this.watched_literals[lit_id].getClauses().contains(cl_id)) {//checking the literal watches the clause is constant
+				res[i] = lit_id;
+				i++;
+			}
+		}
+		return res; 
+	}
+	
+	public String printWatchedLiterals() {
+		String res ="";
+		for(int cl_id : this.clauses_state.getActiveClauses()) {
+			int[] watched = getWatchedLiteral(cl_id);
+			res += "Clause : " + this.clauses.get(cl_id).toString() + 
+					" is being watched by " + this.getLiterals()[watched[0]].toString()
+					+" and " + this.getLiterals()[watched[1]].toString();
+			res += "\n";
+		}
+		return res;
+	}
+
+	public Literal[] getWatched_literals() {
+		return watched_literals;
+	}
+
+	public void setWatched_literals(Literal[] watched_literals) {
+		this.watched_literals = watched_literals;
+	}
+	
 }

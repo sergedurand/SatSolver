@@ -54,7 +54,7 @@ public class TestDPLLOptimized {
 //	   System.out.println(s.solve(phi3,15));
 //	   Tools.printInterpration(s.getInterpretation());
 		
-		String path = "./SAT";
+		String path = "./UNSAT";
 		List<String> benchmark = Tools.listFiles(path);
 		ArrayList<CNF> bench_formulas = new ArrayList<CNF>();
 
@@ -75,13 +75,13 @@ public class TestDPLLOptimized {
 		for(CNF phi : bench_formulas) {		
 			cpt++;
 			try {
-				boolean res = s.solve(phi,20);
-				if(res) {
-					System.err.println(benchmark.get(cpt));
-					System.err.println("SAT");
-				}else {
-					System.err.println("UNSAT");
-				}
+				boolean res = s.solve3(phi,20);
+//				if(res) {
+//					System.err.println(benchmark.get(cpt));
+//					System.err.println("SAT");
+//				}else {
+//					System.err.println("UNSAT");
+//				}
 			}catch(CNFException e){
 				e.printStackTrace();
 			}catch(SolverTimeoutException e){

@@ -481,5 +481,18 @@ public class SolverDPLL implements Solver {
 	public Trace getTrace() {
 		return trace;
 	}
+	
+	public String saveModel() {
+		String res = "";
+		for(int i = 0;i<this.getInterpretation().length;i++) {
+			if(this.getInterpretation()[i] ==0) {
+				res+= "-" + (i+1) +" ";
+			}else {
+				res+= "" + (i+1)+ " ";
+			}
+		}
+		res += "0";
+		return res;
+	}
 
 }
