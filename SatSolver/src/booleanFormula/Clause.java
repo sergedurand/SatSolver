@@ -37,7 +37,7 @@ public class Clause {
 		this.id = count++;
 	}
 	public Set<Integer> getLiterals() {
-		return literals;
+		return activeLiterals;
 	}
 	public void setLiterals(LinkedHashSet<Integer> literals) {
 		this.literals = literals;

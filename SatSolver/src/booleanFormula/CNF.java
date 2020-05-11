@@ -351,7 +351,13 @@ public class CNF {
 	 */
 	public void reactivateSetClause(int var) throws CNFException {
 		this.getVariables().setVal(var, -1);
-		this.activateSetClause(this.variables.getClauses()[var]);
+		for(int cl_id : this.variables.getClauses()[var]) {
+			//we only reactivate the clause if unassigning var leads to the clause being undetermined (still potentially sat)
+			if(this.getClauses().get(cl_id).clauseSituation()==-1) {
+				this.activateClause(cl_id);
+			}
+		}
+		//but we reactivate the literal in all the clauses
 		for(int cl_id : this.variables.getClauses()[var]) {
 			if(this.getClauses().get(cl_id).hasLit(var)) {
 				this.getClauses().get(cl_id).reactivateLiteral(var);

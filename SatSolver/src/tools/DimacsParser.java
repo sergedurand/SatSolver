@@ -28,10 +28,12 @@ public class DimacsParser {
 			int c;
 			char car;
 			while((line = br.readLine())!=null) {
+				int com = 0;
 				if(line.charAt(0) == 'c') { //skipping comments
 					continue;
 				}
 				else if(line.charAt(0)== 'p') {//initializing from first line
+
 					String[] tab = line.split(" +");
 					nb_var = Integer.parseInt(tab[2]);
 					Variables variables = new Variables(nb_var);
@@ -42,6 +44,8 @@ public class DimacsParser {
 					break; //due to some weird CNF formats we move to caracter reading
 				}
 			}
+			
+			
 			if(line.length()>=2 && (line.charAt(line.length()-1) == '0' && line.charAt(line.length()-2) == ' ')) {
 				//reading a clause
 				line = line.trim().replaceAll(" +", " ").replaceAll("\t", " ").replaceAll("\n"," "); // clean all spaces and potential tab
@@ -88,7 +92,7 @@ public class DimacsParser {
 				if(line.charAt(0) == '%') { //some dimacs file had more at the end...
 					break;
 				}
-				if(line.length()>=2 && (line.charAt(line.length()-1) == '0' && line.charAt(line.length()-2) == ' ')) {
+				if(line.length()>=2 && (line.charAt(line.length()-1) == '0') && ((line.charAt(line.length()-2) == ' ') || (line.charAt(line.length()-2) == '\t'))) {
 					//reading a clause
 					line = line.trim().replaceAll(" +", " ").replaceAll("\t", " ").replaceAll("\\r\\n|\\r|\\n"," "); // clean all spaces and potential tab
 					String[] tab = line.split(" +");

@@ -178,6 +178,7 @@ public class SolverDPLL implements Solver {
 				assigned_var = new int[1];
 				assigned_var[0] = -2;
 				empty = false;
+				
 				while(true) {
 					elapsed_time = (System.nanoTime()-start_time)/1_000_000_000;
 					if(elapsed_time > timeout) {

@@ -1,9 +1,12 @@
 package solver;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
+import javax.sound.midi.SysexMessage;
 
 import booleanFormula.CNF;
 import booleanFormula.CNFException;
@@ -63,6 +66,7 @@ public class SolverDPLLOptimized implements Solver {
 			int val;
 			int[] assigned_var = {0};
 			boolean empty = false;
+			VariablesLeft = phi.getUnassigned();
 			if(!backtracking) {
 				//case of a fresh variable: start from val = 0
 				try {
@@ -80,9 +84,11 @@ public class SolverDPLLOptimized implements Solver {
 				}
 				//we have a variable to check.
 				val = 0;
+
 				phi.getVariables().setVal(var, val);
 				empty = false;
 				TempExplored = new LinkedList<Integer>();
+				
 				while(true) {
 					deactivateSatClauses(var, phi);
 					empty = phi.hasEmptyClause();
@@ -101,13 +107,14 @@ public class SolverDPLLOptimized implements Solver {
 						break;
 					}
 				}
+
+				
 				if(!empty) {
 					//we found no empty clause. We can keep looking with the next variable.
 					//add a checkpoint for future backtracking first
 					VariablesExplored.add(-1);
 					VariablesExplored.add(var);
 					VariablesExplored.addAll(TempExplored);
-					VariablesLeft = phi.getUnassigned();
 					backtracking = false;
 					continue;
 				}else {
@@ -123,7 +130,9 @@ public class SolverDPLLOptimized implements Solver {
 //						phi.reactivateSetClause(i);
 //					}
 					
+
 					val = 1;
+					
 					if(TempExplored.size()>0) {
 						for(int i : TempExplored) {
 							phi.reactivateSetClause(i);
@@ -134,7 +143,6 @@ public class SolverDPLLOptimized implements Solver {
 					phi.getVariables().setVal(var, val);
 					assigned_var[0] = 0;
 					TempExplored = new LinkedList<Integer>();
-
 					while(true) {
 						deactivateSatClauses(var, phi);
 						empty = phi.hasEmptyClause();
@@ -157,7 +165,6 @@ public class SolverDPLLOptimized implements Solver {
 						//we can continue, no backtracking
 						VariablesExplored.add(var);
 						VariablesExplored.addAll(TempExplored);
-						VariablesLeft = phi.getUnassigned();
 						backtracking = false;
 						continue;
 					}else {
@@ -190,7 +197,6 @@ public class SolverDPLLOptimized implements Solver {
 				for(int i : varToRemove) {
 					phi.reactivateSetClause(i);
 				}
-
 				phi.reactivateSetClause(var);
 				val = 1;
 				phi.getVariables().setVal(var, val);
@@ -198,7 +204,6 @@ public class SolverDPLLOptimized implements Solver {
 				//no need to add to explored variables: we won't backtrack again to here
 				assigned_var[0] = 0;
 				TempExplored = new LinkedList<Integer>();
-
 				while(true) {
 					deactivateSatClauses(var, phi);
 					empty = phi.hasEmptyClause();
@@ -221,7 +226,6 @@ public class SolverDPLLOptimized implements Solver {
 					//we can continue
 					VariablesExplored.add(var);
 					VariablesExplored.addAll(TempExplored);
-					VariablesLeft = phi.getUnassigned();
 					backtracking = false;
 					continue;
 				}else {
@@ -234,6 +238,427 @@ public class SolverDPLLOptimized implements Solver {
 		}
 	}
 	
+	public LinkedList<Integer> keepPropagating(CNF phi) throws CNFException{
+		LinkedList<Integer> var_learned = new LinkedList<Integer>();
+		boolean empty = false;
+		int[] assigned_var = {-1};
+		while(true) {
+			assigned_var = unitPropagation(phi);
+			if(assigned_var[0] == -1) {
+				break;
+			}
+			var_learned.add(assigned_var[0]);
+			phi.getVariables().setVal(assigned_var[0], assigned_var[1]);
+			deactivateSatClauses(assigned_var[0], phi);
+			empty = phi.hasEmptyClause();
+			if(empty) {
+				break;
+			}
+		}
+		return var_learned;
+	}
+	
+	
+	public boolean solve2Debug(CNF phi,int timeout) throws CNFException, SolverTimeoutException {
+		long start_time = System.nanoTime();
+		HashSet<Integer> VariablesLeft = new HashSet<Integer>(phi.getUnassigned());
+		
+		//some preprocessing: in the case the interpretation has already assigned values
+		//update the formula to add corresponding unit clause
+		for(int i = 0;i<phi.getVariables().getSize();i++) {
+			if(phi.getVariables().getVal(i)==0) {
+				Clause c = new Clause();
+				c.setFormula(phi);
+				c.addLiteral(phi.getLiterals().length-1-i);
+				phi.addClause(c);
+				phi.getLiterals()[phi.getLiterals().length-1-i].addClause(c.getId());
+				phi.getVariables().addClause(c.getId(), i);
+			}else if(phi.getVariables().getVal(i)==1) {
+				Clause c = new Clause();
+				c.setFormula(phi);
+				c.addLiteral(i);
+				phi.getLiterals()[i].addClause(c.getId());
+				phi.getVariables().addClause(c.getId(), i);
+				phi.addClause(c);
+			}
+		}
+		
+		// stack to be used when backtracking
+		LinkedList<Integer> VariablesExplored = new LinkedList<Integer>();
+		int var = -1;
+		boolean backtracking = false;
+		long elapsed_time;
+		LinkedList<Integer> TempExplored = new LinkedList<Integer>();
+		LinkedList<Integer> varToRemove = new LinkedList<Integer>();
+		int cpt = 0;
+		while(true) {
+			cpt ++;
+			if(cpt > 250) {
+				System.err.println("ARRET PREMATURE");
+				System.err.println(phi);
+				System.out.println(cpt);
+				Tools.printInterpration(phi.getInterpretation());
+				for(int i = 0; i <phi.getVariables().getSize();i++) {
+					if((phi.getVariables().getVal(i) == -1) && !VariablesLeft.contains(i)){
+						System.err.println(i + " devrait être dans la pile");
+					}
+				}
+
+				return false;
+			}
+			elapsed_time = (System.nanoTime()-start_time)/1_000_000_000;
+			if(elapsed_time > timeout) {
+				throw new SolverTimeoutException("Over "+ timeout + " seconds");
+			}
+			int val;
+			int[] assigned_var = {0};
+			boolean empty = false;
+
+			if(!backtracking) {
+				//case of a fresh variable: start from val = 0
+				try {
+					//no pop on a HashSet. This selects the next variable randomly
+					var = VariablesLeft.iterator().next();
+					VariablesLeft.remove(var);
+				}catch(NoSuchElementException e) {
+					//we have no more variables left and haven't found a conflict, it's SAT
+					//in the weird case the formula is empty with no variable:
+					if(phi.hasEmptyClause()) {
+						this.solved = false;
+						return false;
+					}
+					this.solved = true;
+					this.interpretation = phi.getInterpretation();
+					return true;
+				}
+				//we have a variable to check.
+				val = 0;
+
+				phi.getVariables().setVal(var, val);
+				empty = false;
+				TempExplored = new LinkedList<Integer>();
+				deactivateSatClauses(var, phi);
+				empty = phi.hasEmptyClause();
+				if(!empty) {
+					TempExplored = keepPropagating(phi);
+				}
+				empty = phi.hasEmptyClause();
+
+				
+				if(!empty) {
+					//we found no empty clause. We can keep looking with the next variable.
+					//add a checkpoint for future backtracking first
+					System.err.println("var : " + var + " assigned to " + val);
+
+					VariablesExplored.add(-1);
+					VariablesExplored.add(var);
+					VariablesExplored.addAll(TempExplored);
+					for(int i : TempExplored) {
+						VariablesLeft.remove(i);
+					}
+					backtracking = false;
+					continue;
+				}else {
+					//conflict found, we try the other assignment
+
+					val = 1;
+					
+					if(TempExplored.size()>0) {
+						for(int i : TempExplored) {
+							phi.reactivateSetClause(i);
+							VariablesLeft.add(i);
+						}
+					}
+					
+					phi.reactivateSetClause(var);
+					phi.getVariables().setVal(var, val);
+					assigned_var[0] = 0;
+					TempExplored = new LinkedList<Integer>();
+					deactivateSatClauses(var, phi);
+					empty = phi.hasEmptyClause();
+					if(!empty) {
+						TempExplored = keepPropagating(phi);
+					}
+					empty = phi.hasEmptyClause();
+					if(!empty) {
+						System.err.println("var : " + var + " assigned to " + val);
+
+						//we can continue, no backtracking
+						VariablesExplored.add(var);
+						VariablesExplored.addAll(TempExplored);
+						for(int i : TempExplored) {
+							VariablesLeft.remove(i);
+							System.err.println("removing : " +i);
+						}
+						backtracking = false;
+						continue;
+					}else {
+						//we have an empty clause on second assignement: need to backtrack
+						System.err.println("Both assignement to " + var +" failed, backtracking");
+						phi.reactivateSetClause(var);
+						VariablesLeft.add(var);
+						if(TempExplored.size()>0) {
+							for(int i : TempExplored) {
+								phi.reactivateSetClause(i);
+								VariablesLeft.add(i);
+							}
+						}
+						backtracking = true;
+						continue;
+					}
+				}
+				
+			}else { //we are backtracking
+				varToRemove = new LinkedList<Integer>();
+				System.err.println("backtracking");
+				if(TempExplored.size()>0) {
+					for(int i : TempExplored) {
+						phi.reactivateSetClause(i);
+						VariablesLeft.add(i);
+						System.err.println("removing : " +i);
+					}
+				}
+				int var_temp;
+				try {
+					while((var_temp = VariablesExplored.removeLast())!= -1) {
+						varToRemove.add(var_temp);
+					}
+				}catch(NoSuchElementException e) {
+					//no checkpoint found: can't backtrack further: UNSAT
+					this.solved = false;
+					return false;
+				}
+
+				var = varToRemove.removeLast();
+				for(int i : varToRemove) {
+					phi.reactivateSetClause(i);
+					VariablesLeft.add(i);
+				}
+				System.err.println("backtracked to : " + var);
+				phi.reactivateSetClause(var);
+				val = 1;
+				phi.getVariables().setVal(var, val);
+				//no need to get a specific val, when backtracking we know we have only assignment 1 left.
+				//no need to add to explored variables: we won't backtrack again to here
+				assigned_var[0] = 0;
+				TempExplored = new LinkedList<Integer>();
+				deactivateSatClauses(var, phi);
+				empty = phi.hasEmptyClause();
+				if(!empty) {
+					TempExplored = keepPropagating(phi);
+				}
+				empty = phi.hasEmptyClause();
+				if(!empty) {
+					//we can continue
+					System.err.println("backtracked to : " + var + "successfull");
+
+					VariablesExplored.add(var);
+					VariablesExplored.addAll(TempExplored);
+					for(int i : TempExplored) {
+						VariablesLeft.remove(i);
+					}
+					backtracking = false;
+					continue;
+				}else {
+					//we have an empty clause on second assignement we have to try to backtrack further
+					System.err.println("backtracked to : " + var + " unsucessful, backtracking further");
+
+					phi.reactivateSetClause(var);
+					VariablesLeft.add(var);
+					backtracking = true;
+					continue;
+				}
+			}
+		}
+	}
+	
+	public boolean solve3(CNF phi,int timeout) throws CNFException, SolverTimeoutException {
+		long start_time = System.nanoTime();
+		HashSet<Integer> VariablesLeft = new HashSet<Integer>(phi.getUnassigned());
+		
+		//some preprocessing: in the case the interpretation has already assigned values
+		//update the formula to add corresponding unit clause
+		for(int i = 0;i<phi.getVariables().getSize();i++) {
+			if(phi.getVariables().getVal(i)==0) {
+				Clause c = new Clause();
+				c.setFormula(phi);
+				c.addLiteral(phi.getLiterals().length-1-i);
+				phi.addClause(c);
+				phi.getLiterals()[phi.getLiterals().length-1-i].addClause(c.getId());
+				phi.getVariables().addClause(c.getId(), i);
+			}else if(phi.getVariables().getVal(i)==1) {
+				Clause c = new Clause();
+				c.setFormula(phi);
+				c.addLiteral(i);
+				phi.getLiterals()[i].addClause(c.getId());
+				phi.getVariables().addClause(c.getId(), i);
+				phi.addClause(c);
+			}
+		}
+		
+		// stack to be used when backtracking
+		LinkedList<Integer> VariablesExplored = new LinkedList<Integer>();
+		int var = -1;
+		boolean backtracking = false;
+		long elapsed_time;
+		LinkedList<Integer> TempExplored = new LinkedList<Integer>();
+		LinkedList<Integer> varToRemove = new LinkedList<Integer>();
+		int cpt = 0;
+		while(true) {
+			cpt ++;
+			elapsed_time = (System.nanoTime()-start_time)/1_000_000_000;
+			if(elapsed_time > timeout) {
+				throw new SolverTimeoutException("Over "+ timeout + " seconds");
+			}
+			int val;
+			int[] assigned_var = {0};
+			boolean empty = false;
+
+			if(!backtracking) {
+				//case of a fresh variable: start from val = 0
+				try {
+					//no pop on a HashSet. This selects the next variable randomly
+					var = VariablesLeft.iterator().next();
+					VariablesLeft.remove(var);
+				}catch(NoSuchElementException e) {
+					//we have no more variables left and haven't found a conflict, it's SAT
+					//in the weird case the formula is empty with no variable:
+					if(phi.hasEmptyClause()) {
+						this.solved = false;
+						return false;
+					}
+					this.solved = true;
+					this.interpretation = phi.getInterpretation();
+					return true;
+				}
+				//we have a variable to check.
+				val = 0;
+
+				phi.getVariables().setVal(var, val);
+				empty = false;
+				TempExplored = new LinkedList<Integer>();
+				deactivateSatClauses(var, phi);
+				empty = phi.hasEmptyClause();
+				if(!empty) {
+					TempExplored = keepPropagating(phi);
+				}
+				empty = phi.hasEmptyClause();
+
+				
+				if(!empty) {
+					//we found no empty clause. We can keep looking with the next variable.
+					//add a checkpoint for future backtracking first
+					VariablesExplored.add(-1);
+					VariablesExplored.add(var);
+					VariablesExplored.addAll(TempExplored);
+					for(int i : TempExplored) {
+						VariablesLeft.remove(i);
+					}
+					backtracking = false;
+					continue;
+				}else {
+					//conflict found, we try the other assignment
+
+					val = 1;
+					
+					if(TempExplored.size()>0) {
+						for(int i : TempExplored) {
+							phi.reactivateSetClause(i);
+							VariablesLeft.add(i);
+						}
+					}
+					
+					phi.reactivateSetClause(var);
+					phi.getVariables().setVal(var, val);
+					assigned_var[0] = 0;
+					TempExplored = new LinkedList<Integer>();
+					deactivateSatClauses(var, phi);
+					empty = phi.hasEmptyClause();
+					if(!empty) {
+						TempExplored = keepPropagating(phi);
+					}
+					empty = phi.hasEmptyClause();
+					if(!empty) {
+						//we can continue, no backtracking
+						VariablesExplored.add(var);
+						VariablesExplored.addAll(TempExplored);
+						for(int i : TempExplored) {
+							VariablesLeft.remove(i);
+						}
+						backtracking = false;
+						continue;
+					}else {
+						//we have an empty clause on second assignement: need to backtrack
+						phi.reactivateSetClause(var);
+						VariablesLeft.add(var);
+						if(TempExplored.size()>0) {
+							for(int i : TempExplored) {
+								phi.reactivateSetClause(i);
+								VariablesLeft.add(i);
+							}
+						}
+						backtracking = true;
+						continue;
+					}
+				}
+				
+			}else { //we are backtracking
+				varToRemove = new LinkedList<Integer>();
+				if(TempExplored.size()>0) {
+					for(int i : TempExplored) {
+						phi.reactivateSetClause(i);
+						VariablesLeft.add(i);
+					}
+				}
+				int var_temp;
+				try {
+					while((var_temp = VariablesExplored.removeLast())!= -1) {
+						varToRemove.add(var_temp);
+					}
+				}catch(NoSuchElementException e) {
+					//no checkpoint found: can't backtrack further: UNSAT
+					this.solved = false;
+					return false;
+				}
+
+				var = varToRemove.removeLast();
+				for(int i : varToRemove) {
+					phi.reactivateSetClause(i);
+					VariablesLeft.add(i);
+				}
+				phi.reactivateSetClause(var);
+				val = 1;
+				phi.getVariables().setVal(var, val);
+				//no need to get a specific val, when backtracking we know we have only assignment 1 left.
+				//no need to add to explored variables: we won't backtrack again to here
+				assigned_var[0] = 0;
+				TempExplored = new LinkedList<Integer>();
+				deactivateSatClauses(var, phi);
+				empty = phi.hasEmptyClause();
+				if(!empty) {
+					TempExplored = keepPropagating(phi);
+				}
+				empty = phi.hasEmptyClause();
+				if(!empty) {
+					//we can continue
+					VariablesExplored.add(var);
+					VariablesExplored.addAll(TempExplored);
+					for(int i : TempExplored) {
+						VariablesLeft.remove(i);
+					}
+					backtracking = false;
+					continue;
+				}else {
+					//we have an empty clause on second assignement we have to try to backtrack further
+					
+					phi.reactivateSetClause(var);
+					VariablesLeft.add(var);
+					backtracking = true;
+					continue;
+				}
+			}
+		}
+	}
 	
 	public void deactivateSatClauses(int var_id,CNF phi) throws CNFException {
 		Set<Integer> clauses_id = phi.getActiveClauses();

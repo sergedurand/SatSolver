@@ -1,14 +1,21 @@
 kclique2.cnf = SAT
 kclique3.cnf = SAT
 kcolor1.cnf = UNSAT
+kcolor2.cng = SAT
 ordering1 = SAT
 ordering2 = SAT
 ordering3 = UNSAT
+php22.cnf = SAT
 pigeon1 = SAT
 pigeon2 = SAT
 pigeon3 = SAT
+pigeon4 = SAT
 pigeon5 = UNSAT
 rand3_1 = SAT
 rand3_2 = SAT
 rand6_1 = SAT
 rand6_2 = SAT
+
+(x1 v x2) ^ (x2 v ¬x1) ^ (x1 v ¬x2) ^ (¬x2 v ¬x1)
+
+UNSAT/aim-50-1_6-no-1.cnf
