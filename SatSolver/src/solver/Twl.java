@@ -44,6 +44,29 @@ public class Twl implements Solver {
 			
 			val = 0;
 			phi.getVariables().setVal(var, val);
+			VariablesExplored.add(-1);
+			VariablesExplored.add(var);
+			int lit_id = var;
+			boolean backtracking = false;
+			LinkedList<Integer> Learned = new LinkedList<Integer>();
+			while(true) {
+				LinkedList<Integer> TempLearned = unitPropagate(lit_id,phi,VariablesExplored);
+				if(TempLearned.size()==0) {
+					//nothing learned, no conflict
+					break;
+				}
+				if(TempLearned.getLast() == -1) {
+					TempLearned.removeLast();
+					Learned.addAll(TempLearned);
+					backtracking = true;
+					break;
+				}else {
+					lit_id = Learned.removeFirst();
+				}
+			}
+			if(backtracking) {
+				
+			}
 			
 			
 		}
@@ -52,18 +75,43 @@ public class Twl implements Solver {
 
 	}
 	
-	public void unitPropagate(int lit_id,CNF phi) throws CNFException {
+	public LinkedList<Integer> unitPropagate(int lit_id,CNF phi,LinkedList<Integer> VariablesExplored) throws CNFException {
+		//we update variables explored with the learned variable
+		//we return the literals made unsat by the learning
+		LinkedList<Integer> res = new LinkedList<Integer>();
 		for(int cl_id : phi.getWatched_literals()[lit_id].getClauses()) {
 			Clause c = phi.getClauses().get(cl_id);
 			for(int l2 : c.getLiterals()) {
-				if(((phi.getLiterals()[l2].getVal()==-1)) && !phi.getWatched_literals()[l2].getClauses().contains(cl_id)){
+				if(l2 == lit_id) {continue;}
+				if(((phi.getLiterals()[l2].getVal()!=0)) && !phi.getWatched_literals()[l2].getClauses().contains(cl_id)){
 							//we found another unassigned literal that is not watched
 							phi.getWatched_literals()[l2].getClauses().add(cl_id);
 							phi.getWatched_literals()[lit_id].removeClause(cl_id);
-							break;
+							break; //moving to next clause
+						}else if (phi.getWatched_literals()[l2].getClauses().contains(cl_id)) {
+							//we found the other watched literal
+							if(phi.getWatched_literals()[l2].getVal() == 1) {
+								break; //moving to next clause
+							}else if(phi.getWatched_literals()[l2].getVal() == -1) {
+								//we are in a unit clause and can satisfy the second watched literal
+								VariablesExplored.add(phi.getLiterals()[l2].getId());
+								if(l2>= phi.getVariables().getSize()) {
+									res.add(phi.getLiterals()[l2].getId()); 
+									phi.getVariables().setVal(phi.getLiterals()[l2].getId(), 0);
+								}else {
+									res.add(phi.getLiterals().length-1-l2);
+									phi.getVariables().setVal(phi.getLiterals()[l2].getId(), 1);
+								}	
+							}else {
+								//-1 will signal a conflict was found
+								res.add(-1);
+								return res;
+							}
 						}
 			}
 		}
+		
+		return res;
 	}
 	
 	public void deactivateSatClausesTwl(int var_id,CNF phi) throws CNFException {
