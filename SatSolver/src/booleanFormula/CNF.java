@@ -372,6 +372,7 @@ public class CNF {
 		this.watched_literals = new Literal[this.getLiterals().length];
 		for(int i = 0;i<this.getLiterals().length;i++) {
 			this.watched_literals[i] = new Literal(this.getLiterals()[i].getId(),this.getLiterals()[i].isNeg());
+			this.watched_literals[i].setFormula(this);
 			this.watched_literals[i].setClauses(new HashSet<Integer>());
 		}
 		

@@ -629,7 +629,6 @@ public class SolverDPLLOptimized implements Solver {
 				phi.reactivateSetClause(var);
 				val = 1;
 				phi.getVariables().setVal(var, val);
-				//no need to get a specific val, when backtracking we know we have only assignment 1 left.
 				//no need to add to explored variables: we won't backtrack again to here
 				assigned_var[0] = 0;
 				TempExplored = new LinkedList<Integer>();
