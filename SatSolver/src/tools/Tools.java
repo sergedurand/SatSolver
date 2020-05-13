@@ -281,7 +281,7 @@ public class Tools {
 	 */
 	public static void DimacsFromCNF(CNF formule,String filename, String comments) {
 		String dimacs = "";
-		String path = "./"+filename+".cnf";
+		String path = "./copie/"+filename+".cnf";
 		if(comments != null) {dimacs += comments;} //we assume comments are already in proper format
 		String first_line = "p cnf " + formule.getVariables().getSize() + " " + formule.getClauses().size() +"\n";
 		dimacs += first_line;
