@@ -160,6 +160,7 @@ public class SolverTwl implements Solver {
 							phi.getVariables().setVal(var_temp, -1);
 						}
 						phi.getVariables().setVal(var, -1);
+						VariablesLeft.add(var);
 						backtracking = true;
 						continue;
 					}	
