@@ -16,7 +16,7 @@ public class Twl {
 		String destname = args[1];
 		SolverTwl s = new SolverTwl();
 		CNF phi = DimacsParser.CNFfromDIMACS2(filename);
-		boolean res = s.solve2(phi, Integer.MAX_VALUE);
+		boolean res = s.solve(phi, Integer.MAX_VALUE);
 		if(res) {
 			System.out.println("SAT");
 		}else {
