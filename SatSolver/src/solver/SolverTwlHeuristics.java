@@ -1,5 +1,6 @@
 package solver;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -9,18 +10,20 @@ import java.util.Set;
 import booleanFormula.CNF;
 import booleanFormula.CNFException;
 import booleanFormula.Clause;
-
-public class SolverTwl implements Solver {
+/**
+ * Heuristic studied : Prioritizing variable that cause the most conflicts.
+ * We considered them priority if the number of conflict they cause is above some threshold
+ * We do not sort them once they're above
+ * @author Serge
+ *
+ */
+public class SolverTwlHeuristics implements Solver {
 	boolean solved = false;
 	int[] interpretation;
 
-	/**
-	 * With HashSet VariablesLeft
-	 */
-	@Override
-	public boolean solve(CNF phi,int timeout) throws CNFException, SolverTimeoutException {
+	public boolean solve2(CNF phi,int timeout,int priority_thresh) throws CNFException, SolverTimeoutException {
 		long start_time = System.nanoTime();
-		
+		int[] nb_conflicts = new int[phi.getVariables().getSize()];
 		//we first get rid of preexisting unit clauses
 		keepPropagating(phi); //this doesn't use any watched literal technique, it's just pre-processing
 		if(phi.hasEmptyClause()) {
@@ -31,6 +34,7 @@ public class SolverTwl implements Solver {
 		
 		phi.initWatchedLiterals();//since we got rid of unit clauses we're sure all active clauses are watched by 2 literals
 		HashSet<Integer> VariablesLeft = new HashSet<Integer>(phi.getUnassigned());
+		HashSet<Integer> PriorityVariables = new HashSet<Integer>();
 		LinkedList<Integer> VariablesExplored = new LinkedList<Integer>();
 		
 		//initializing variables
@@ -42,21 +46,47 @@ public class SolverTwl implements Solver {
 		LinkedList<Integer> LearnedStack = new LinkedList<Integer>();
 		LinkedList<Integer> LearnedFinal = new LinkedList<Integer>();
 		LinkedList<Integer> varToRemove = new LinkedList<Integer>();
-
+		int cpt = 0;
+		int nb_dec = 0;
 		
 		while(true) {
 			long elapsed_time = (System.nanoTime()-start_time)/1_000_000_000;
 			if(elapsed_time > timeout) {
-				throw new SolverTimeoutException("Over "+ timeout + " seconds");
+				throw new SolverTimeoutException("Over " + timeout +" seconds");
 			}
 			if(!backtracking) {
-				try {
-					var = VariablesLeft.iterator().next();
-					VariablesLeft.remove(var);
-				}catch(NoSuchElementException e){
+				var = -1;
+				if(VariablesLeft.size() == 0) {
+					System.out.println("Picked from priority list " + cpt + " times");
+					System.out.println("Total number of decision = " + nb_dec);
+					System.out.println("percentage of prioritized decision = " + (cpt*100/nb_dec) +"%");
 					this.solved = true;
 					this.interpretation = phi.getInterpretation();
 					return true;
+				}else {
+					nb_dec ++;
+					boolean priority_found = false;
+					if(PriorityVariables.size() > 0) {
+						Iterator<Integer> it = PriorityVariables.iterator();
+						while(it.hasNext()) {
+							int temp_var = it.next();
+							if(VariablesLeft.contains(temp_var)) {
+								var = temp_var;
+								VariablesLeft.remove(var);
+								it.remove();
+								priority_found = true;
+								cpt++;
+								break;
+							}
+						}
+						if(!priority_found) {
+							var = VariablesLeft.iterator().next();
+							VariablesLeft.remove(var);
+						}
+					}else {
+						var = VariablesLeft.iterator().next();
+						VariablesLeft.remove(var);
+					}	
 				}
 				
 				val = 0;
@@ -66,7 +96,7 @@ public class SolverTwl implements Solver {
 				LearnedStack = new LinkedList<Integer>();
 				LearnedFinal = new LinkedList<Integer>();
 				while(true) {//trying to learn new assignments with unit clauses
-					LinkedList<Integer> TempLearned = unitPropagate(lit_id,phi);
+					LinkedList<Integer> TempLearned = unitPropagate(lit_id,phi,nb_conflicts);
 					if(TempLearned.size() == 0) {
 						//nothing learned but there might be previously learned lit to propagate
 						try {
@@ -121,7 +151,7 @@ public class SolverTwl implements Solver {
 					LearnedStack = new LinkedList<Integer>();
 					LearnedFinal = new LinkedList<Integer>();
 					while(true) {//trying to learn new assignments with unit clauses
-						LinkedList<Integer> TempLearned = unitPropagate(lit_id,phi);
+						LinkedList<Integer> TempLearned = unitPropagate(lit_id,phi,nb_conflicts);
 						if(TempLearned.size() == 0) {
 							//nothing learned but there might be previously learned lit to propagate
 							try {
@@ -166,6 +196,10 @@ public class SolverTwl implements Solver {
 							phi.getVariables().setVal(var_temp, -1);
 						}
 						phi.getVariables().setVal(var, -1);
+						nb_conflicts[var] += 1;
+						if(nb_conflicts[var]>priority_thresh) {
+							PriorityVariables.add(var);
+						}
 						VariablesLeft.add(var);
 						backtracking = true;
 						continue;
@@ -197,7 +231,7 @@ public class SolverTwl implements Solver {
 				LearnedStack = new LinkedList<Integer>();
 				LearnedFinal = new LinkedList<Integer>();
 				while(true) {//trying to learn new assignments with unit clauses
-					LinkedList<Integer> TempLearned = unitPropagate(lit_id,phi);
+					LinkedList<Integer> TempLearned = unitPropagate(lit_id,phi,nb_conflicts);
 					if(TempLearned.size() == 0) {
 						//nothing learned but there might be previously learned lit to propagate
 						try {
@@ -253,7 +287,7 @@ public class SolverTwl implements Solver {
 
 	}
 	
-	public LinkedList<Integer> unitPropagate(int lit_id,CNF phi) throws CNFException {
+	public LinkedList<Integer> unitPropagate(int lit_id,CNF phi, int[] nb_conflicts) throws CNFException {
 		//we update variables explored with the learned variable
 		//we return the literals made unsat by the learning
 		LinkedList<Integer> res = new LinkedList<Integer>();
@@ -297,8 +331,9 @@ public class SolverTwl implements Solver {
 								//the other watch was unassigned, we can move on to next clause
 								break;
 							}else {
-							res.add(-1);
-							return res;	
+								nb_conflicts[phi.getLiterals()[lit_id].getId()] += 1;
+								res.add(-1);
+								return res;	
 							}
 						}				
 					}
@@ -419,17 +454,13 @@ public class SolverTwl implements Solver {
 		return this.interpretation;
 	}
 	
+	@Override
 	/**
-	 * With LinkedList VariablesLeft
-	 * @param phi
-	 * @param timeout
-	 * @return
-	 * @throws CNFException
-	 * @throws SolverTimeoutException
+	 * With HashSet VariablesLeft
 	 */
-	public boolean solve2(CNF phi,int timeout) throws CNFException, SolverTimeoutException {
+	public boolean solve(CNF phi,int timeout) throws CNFException, SolverTimeoutException {
 		long start_time = System.nanoTime();
-		
+		int[] nb_conflicts = new int[phi.getVariables().getSize()];
 		//we first get rid of preexisting unit clauses
 		keepPropagating(phi); //this doesn't use any watched literal technique, it's just pre-processing
 		if(phi.hasEmptyClause()) {
@@ -438,8 +469,12 @@ public class SolverTwl implements Solver {
 			return false;
 		}
 		
+		int priority_thresh = phi.getClauses().size()/23;
 		phi.initWatchedLiterals();//since we got rid of unit clauses we're sure all active clauses are watched by 2 literals
-		LinkedList<Integer> VariablesLeft = phi.getUnassigned();
+		LinkedList<Integer> temp = phi.getUnassigned();
+		Collections.shuffle(temp);
+		HashSet<Integer> VariablesLeft = new HashSet<Integer>(temp);
+		HashSet<Integer> PriorityVariables = new HashSet<Integer>();
 		LinkedList<Integer> VariablesExplored = new LinkedList<Integer>();
 		
 		//initializing variables
@@ -451,21 +486,47 @@ public class SolverTwl implements Solver {
 		LinkedList<Integer> LearnedStack = new LinkedList<Integer>();
 		LinkedList<Integer> LearnedFinal = new LinkedList<Integer>();
 		LinkedList<Integer> varToRemove = new LinkedList<Integer>();
-
+		int cpt = 0;
+		int nb_dec = 0;
 		
 		while(true) {
 			long elapsed_time = (System.nanoTime()-start_time)/1_000_000_000;
 			if(elapsed_time > timeout) {
-				throw new SolverTimeoutException("Over "+ timeout + " seconds");
+				throw new SolverTimeoutException("Over " + timeout +" seconds");
 			}
 			if(!backtracking) {
-				try {
-					VariablesLeft = phi.getUnassigned();
-					var = VariablesLeft.pop();
-				}catch(NoSuchElementException e){
+				var = -1;
+				if(VariablesLeft.size() == 0) {
+//					System.out.println("Picked from priority list " + cpt + " times");
+//					System.out.println("Total number of decision = " + nb_dec);
+//					System.out.println("percentage of prioritized decision = " + (cpt*100/nb_dec) +"%");
 					this.solved = true;
 					this.interpretation = phi.getInterpretation();
 					return true;
+				}else {
+					nb_dec ++;
+					boolean priority_found = false;
+					if(PriorityVariables.size() > 0) {
+						Iterator<Integer> it = PriorityVariables.iterator();
+						while(it.hasNext()) {
+							int temp_var = it.next();
+							if(VariablesLeft.contains(temp_var)) {
+								var = temp_var;
+								VariablesLeft.remove(var);
+								it.remove();
+								priority_found = true;
+								cpt++;
+								break;
+							}
+						}
+						if(!priority_found) {
+							var = VariablesLeft.iterator().next();
+							VariablesLeft.remove(var);
+						}
+					}else {
+						var = VariablesLeft.iterator().next();
+						VariablesLeft.remove(var);
+					}	
 				}
 				
 				val = 0;
@@ -475,7 +536,7 @@ public class SolverTwl implements Solver {
 				LearnedStack = new LinkedList<Integer>();
 				LearnedFinal = new LinkedList<Integer>();
 				while(true) {//trying to learn new assignments with unit clauses
-					LinkedList<Integer> TempLearned = unitPropagate(lit_id,phi);
+					LinkedList<Integer> TempLearned = unitPropagate(lit_id,phi,nb_conflicts);
 					if(TempLearned.size() == 0) {
 						//nothing learned but there might be previously learned lit to propagate
 						try {
@@ -509,6 +570,7 @@ public class SolverTwl implements Solver {
 					VariablesExplored.add(var);
 					for(int i : LearnedFinal) {
 						int var_id = phi.getLiterals()[i].getId();
+						VariablesLeft.remove(var_id);
 						VariablesExplored.add(var_id);
 					}
 					continue;
@@ -529,7 +591,7 @@ public class SolverTwl implements Solver {
 					LearnedStack = new LinkedList<Integer>();
 					LearnedFinal = new LinkedList<Integer>();
 					while(true) {//trying to learn new assignments with unit clauses
-						LinkedList<Integer> TempLearned = unitPropagate(lit_id,phi);
+						LinkedList<Integer> TempLearned = unitPropagate(lit_id,phi,nb_conflicts);
 						if(TempLearned.size() == 0) {
 							//nothing learned but there might be previously learned lit to propagate
 							try {
@@ -563,6 +625,7 @@ public class SolverTwl implements Solver {
 						VariablesExplored.add(var);
 						for(int i : LearnedFinal) {
 							int var_id = phi.getLiterals()[i].getId();
+							VariablesLeft.remove(var_id);
 							VariablesExplored.add(var_id);
 						}
 						continue;
@@ -573,6 +636,11 @@ public class SolverTwl implements Solver {
 							phi.getVariables().setVal(var_temp, -1);
 						}
 						phi.getVariables().setVal(var, -1);
+						nb_conflicts[var] += 1;
+						if(nb_conflicts[var]>priority_thresh) {
+							PriorityVariables.add(var);
+						}
+						VariablesLeft.add(var);
 						backtracking = true;
 						continue;
 					}	
@@ -594,8 +662,8 @@ public class SolverTwl implements Solver {
 				
 				for(int i : varToRemove) {
 					phi.getVariables().setVal(i, -1);
+					VariablesLeft.add(i);
 				}
-				varToRemove = new LinkedList<Integer>();
 				
 				phi.getVariables().setVal(var, 1);
 				lit_id = phi.getLiterals().length-1-var;
@@ -603,7 +671,7 @@ public class SolverTwl implements Solver {
 				LearnedStack = new LinkedList<Integer>();
 				LearnedFinal = new LinkedList<Integer>();
 				while(true) {//trying to learn new assignments with unit clauses
-					LinkedList<Integer> TempLearned = unitPropagate(lit_id,phi);
+					LinkedList<Integer> TempLearned = unitPropagate(lit_id,phi,nb_conflicts);
 					if(TempLearned.size() == 0) {
 						//nothing learned but there might be previously learned lit to propagate
 						try {
@@ -634,6 +702,7 @@ public class SolverTwl implements Solver {
 					VariablesExplored.add(var);
 					for(int i : LearnedFinal) {
 						int var_id = phi.getLiterals()[i].getId();
+						VariablesLeft.remove(var_id);
 						VariablesExplored.add(var_id);
 					}
 					backtracking = false;
@@ -648,8 +717,8 @@ public class SolverTwl implements Solver {
 					backtracking = true;
 					continue;
 				}			
-			}			
-		}		
+			}	
+		}	
 	}
 	
 	public String saveModel() {
@@ -669,5 +738,4 @@ public class SolverTwl implements Solver {
 		res += "0";
 		return res;
 	}
-
 }

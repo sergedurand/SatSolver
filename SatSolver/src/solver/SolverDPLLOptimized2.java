@@ -1,59 +1,32 @@
 package solver;
 
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.sound.midi.SysexMessage;
-
 import booleanFormula.CNF;
 import booleanFormula.CNFException;
 import booleanFormula.Clause;
 import tools.Tools;
+
 /**
- * Updating Variables Left live with HashSet
+ * Getting unassigned variables each time
  * @author Serge
  *
  */
-public class SolverDPLLOptimized implements Solver {
+public class SolverDPLLOptimized2 implements Solver {
 	private int[] interpretation;
 	boolean solved = false;
 
-	public SolverDPLLOptimized(){
+	public SolverDPLLOptimized2(){
 		super();
 	}
 	
-	public SolverDPLLOptimized(CNF phi) {
-		this();
-	}
-	
-	
-	public LinkedList<Integer> keepPropagating(CNF phi) throws CNFException{
-		LinkedList<Integer> var_learned = new LinkedList<Integer>();
-		boolean empty = false;
-		int[] assigned_var = {-1};
-		while(true) {
-			assigned_var = unitPropagation(phi);
-			if(assigned_var[0] == -1) {
-				break;
-			}
-			var_learned.add(assigned_var[0]);
-			phi.getVariables().setVal(assigned_var[0], assigned_var[1]);
-			deactivateSatClauses(assigned_var[0], phi);
-			empty = phi.hasEmptyClause();
-			if(empty) {
-				break;
-			}
-		}
-		return var_learned;
-	}
-	
-	
+	@Override
 	public boolean solve(CNF phi,int timeout) throws CNFException, SolverTimeoutException {
 		long start_time = System.nanoTime();
-		HashSet<Integer> VariablesLeft = new HashSet<Integer>(phi.getUnassigned());
+		LinkedList<Integer> VariablesLeft = phi.getUnassigned();
 		
 		//some preprocessing: in the case the interpretation has already assigned values
 		//update the formula to add corresponding unit clause
@@ -82,9 +55,7 @@ public class SolverDPLLOptimized implements Solver {
 		long elapsed_time;
 		LinkedList<Integer> TempExplored = new LinkedList<Integer>();
 		LinkedList<Integer> varToRemove = new LinkedList<Integer>();
-		int cpt = 0;
 		while(true) {
-			cpt ++;
 			elapsed_time = (System.nanoTime()-start_time)/1_000_000_000;
 			if(elapsed_time > timeout) {
 				throw new SolverTimeoutException("Over "+ timeout + " seconds");
@@ -92,13 +63,11 @@ public class SolverDPLLOptimized implements Solver {
 			int val;
 			int[] assigned_var = {0};
 			boolean empty = false;
-
+			VariablesLeft = phi.getUnassigned();
 			if(!backtracking) {
 				//case of a fresh variable: start from val = 0
 				try {
-					//no pop on a HashSet. This selects the next variable with no guarantee on the order
-					var = VariablesLeft.iterator().next();
-					VariablesLeft.remove(var);
+					var = VariablesLeft.pop();
 				}catch(NoSuchElementException e) {
 					//we have no more variables left and haven't found a conflict, it's SAT
 					//in the weird case the formula is empty with no variable:
@@ -116,12 +85,25 @@ public class SolverDPLLOptimized implements Solver {
 				phi.getVariables().setVal(var, val);
 				empty = false;
 				TempExplored = new LinkedList<Integer>();
-				deactivateSatClauses(var, phi);
-				empty = phi.hasEmptyClause();
-				if(!empty) {
-					TempExplored = keepPropagating(phi);
+				
+				while(true) {
+					deactivateSatClauses(var, phi);
+					empty = phi.hasEmptyClause();
+					if(empty) {
+						break;
+					}
+					assigned_var = unitPropagation(phi);
+					if(assigned_var[0] == -1) {
+						break;
+					}
+					TempExplored.add(assigned_var[0]);
+					phi.getVariables().setVal(assigned_var[0], assigned_var[1]);
+					deactivateSatClauses(assigned_var[0], phi);
+					empty = phi.hasEmptyClause();
+					if(empty) {
+						break;
+					}
 				}
-				empty = phi.hasEmptyClause();
 
 				
 				if(!empty) {
@@ -130,20 +112,27 @@ public class SolverDPLLOptimized implements Solver {
 					VariablesExplored.add(-1);
 					VariablesExplored.add(var);
 					VariablesExplored.addAll(TempExplored);
-					for(int i : TempExplored) {
-						VariablesLeft.remove(i);
-					}
 					backtracking = false;
 					continue;
 				}else {
 					//conflict found, we try the other assignment
+					
+//					LinkedList<Integer> varToRemove = new LinkedList<Integer>();
+//					int var_temp;
+//					while((var_temp = VariablesExplored.removeLast())!= -1) {
+//						varToRemove.add(var_temp);
+//					}
+//					var = varToRemove.removeLast();
+//					for(int i : varToRemove) {
+//						phi.reactivateSetClause(i);
+//					}
+					
 
 					val = 1;
 					
 					if(TempExplored.size()>0) {
 						for(int i : TempExplored) {
 							phi.reactivateSetClause(i);
-							VariablesLeft.add(i);
 						}
 					}
 					
@@ -151,31 +140,33 @@ public class SolverDPLLOptimized implements Solver {
 					phi.getVariables().setVal(var, val);
 					assigned_var[0] = 0;
 					TempExplored = new LinkedList<Integer>();
-					deactivateSatClauses(var, phi);
-					empty = phi.hasEmptyClause();
-					if(!empty) {
-						TempExplored = keepPropagating(phi);
+					while(true) {
+						deactivateSatClauses(var, phi);
+						empty = phi.hasEmptyClause();
+						if(empty) {
+							break;
+						}
+						assigned_var = unitPropagation(phi);
+						if(assigned_var[0] == -1) {
+							break;
+						}
+						TempExplored.add(assigned_var[0]);
+						phi.getVariables().setVal(assigned_var[0], assigned_var[1]);
+						deactivateSatClauses(assigned_var[0], phi);
+						empty = phi.hasEmptyClause();
+						if(empty) {
+							break;
+						}
 					}
-					empty = phi.hasEmptyClause();
 					if(!empty) {
 						//we can continue, no backtracking
 						VariablesExplored.add(var);
 						VariablesExplored.addAll(TempExplored);
-						for(int i : TempExplored) {
-							VariablesLeft.remove(i);
-						}
 						backtracking = false;
 						continue;
 					}else {
 						//we have an empty clause on second assignement: need to backtrack
 						phi.reactivateSetClause(var);
-						VariablesLeft.add(var);
-						if(TempExplored.size()>0) {
-							for(int i : TempExplored) {
-								phi.reactivateSetClause(i);
-								VariablesLeft.add(i);
-							}
-						}
 						backtracking = true;
 						continue;
 					}
@@ -186,7 +177,6 @@ public class SolverDPLLOptimized implements Solver {
 				if(TempExplored.size()>0) {
 					for(int i : TempExplored) {
 						phi.reactivateSetClause(i);
-						VariablesLeft.add(i);
 					}
 				}
 				int var_temp;
@@ -203,34 +193,41 @@ public class SolverDPLLOptimized implements Solver {
 				var = varToRemove.removeLast();
 				for(int i : varToRemove) {
 					phi.reactivateSetClause(i);
-					VariablesLeft.add(i);
 				}
 				phi.reactivateSetClause(var);
 				val = 1;
 				phi.getVariables().setVal(var, val);
+				//no need to get a specific val, when backtracking we know we have only assignment 1 left.
 				//no need to add to explored variables: we won't backtrack again to here
 				assigned_var[0] = 0;
 				TempExplored = new LinkedList<Integer>();
-				deactivateSatClauses(var, phi);
-				empty = phi.hasEmptyClause();
-				if(!empty) {
-					TempExplored = keepPropagating(phi);
+				while(true) {
+					deactivateSatClauses(var, phi);
+					empty = phi.hasEmptyClause();
+					if(empty) {
+						break;
+					}
+					assigned_var = unitPropagation(phi);
+					if(assigned_var[0] == -1) {
+						break;
+					}
+					TempExplored.add(assigned_var[0]);
+					phi.getVariables().setVal(assigned_var[0], assigned_var[1]);
+					deactivateSatClauses(assigned_var[0], phi);
+					empty = phi.hasEmptyClause();
+					if(empty) {
+						break;
+					}
 				}
-				empty = phi.hasEmptyClause();
 				if(!empty) {
 					//we can continue
 					VariablesExplored.add(var);
 					VariablesExplored.addAll(TempExplored);
-					for(int i : TempExplored) {
-						VariablesLeft.remove(i);
-					}
 					backtracking = false;
 					continue;
 				}else {
 					//we have an empty clause on second assignement we have to try to backtrack further
-					
 					phi.reactivateSetClause(var);
-					VariablesLeft.add(var);
 					backtracking = true;
 					continue;
 				}
@@ -238,6 +235,28 @@ public class SolverDPLLOptimized implements Solver {
 		}
 	}
 	
+	public LinkedList<Integer> keepPropagating(CNF phi) throws CNFException{
+		LinkedList<Integer> var_learned = new LinkedList<Integer>();
+		boolean empty = false;
+		int[] assigned_var = {-1};
+		while(true) {
+			assigned_var = unitPropagation(phi);
+			if(assigned_var[0] == -1) {
+				break;
+			}
+			var_learned.add(assigned_var[0]);
+			phi.getVariables().setVal(assigned_var[0], assigned_var[1]);
+			deactivateSatClauses(assigned_var[0], phi);
+			empty = phi.hasEmptyClause();
+			if(empty) {
+				break;
+			}
+		}
+		return var_learned;
+	}
+	
+	
+
 	public void deactivateSatClauses(int var_id,CNF phi) throws CNFException {
 		Set<Integer> clauses_id = phi.getActiveClauses();
 		int lit_pos;
@@ -300,6 +319,7 @@ public class SolverDPLLOptimized implements Solver {
 		}
 	}
 
+
 	@Override
 	public int[] getInterpretation() {
 		return interpretation;
@@ -322,5 +342,4 @@ public class SolverDPLLOptimized implements Solver {
 		res += "0";
 		return res;
 	}
-
 }

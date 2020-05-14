@@ -75,7 +75,7 @@ public class TestDPLLOptimized {
 		for(CNF phi : bench_formulas) {		
 			cpt++;
 			try {
-				boolean res = s.solve3(phi,20);
+				boolean res = s.solve(phi,20);
 //				if(res) {
 //					System.err.println(benchmark.get(cpt));
 //					System.err.println("SAT");

@@ -12,7 +12,11 @@ import constraintEncoding.BinaryAMO;
 import constraintEncoding.NaiveAMO;
 import constraintEncoding.SequentialAMO;
 import solver.SolverDPLL;
+import solver.SolverDPLLOptimized;
+import solver.SolverDPLLOptimized2;
 import solver.SolverTimeoutException;
+import solver.SolverTwl;
+import solver.SolverTwlHeuristics;
 import tools.ModelParser;
 import tools.Tools;
 
@@ -20,14 +24,18 @@ public class TestLatin {
 
 	public static void main(String[] args) throws CNFException, SolverTimeoutException, AMOException {
 		// TODO Auto-generated method stub
-		SolverDPLL s = new SolverDPLL();
-		int size = 5;
-		LatinSquare sq = new LatinSquare(10);
-		int[] res = ModelParser.ModelToInterpretation("/home/serge/Documents/ProjetAI/sat20skel/outputs/latin-10.model");
-		sq.getPhi().getVariables().setVariables(res);
-		sq.updateGrid();
-		System.out.println(sq);
-
+		SolverDPLLOptimized s = new SolverDPLLOptimized();
+		SolverDPLLOptimized2 s2 = new SolverDPLLOptimized2();
+		SolverTwl s3 = new SolverTwl();
+		SolverTwlHeuristics s4 = new SolverTwlHeuristics();
+		int size = 12;
+		LatinSquare sq = new LatinSquare(size);
+		CNF phi = sq.getPhi();
+		Tools.DimacsFromCNF(phi, "latin_sq_12", "");
+		long start = System.nanoTime();
+		sq.solveSquare(s4);
+		long elapsed = (System.nanoTime()-start)/1000000;
+		System.out.println(elapsed + " ms");
 		
 	}
 
