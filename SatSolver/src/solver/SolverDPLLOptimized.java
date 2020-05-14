@@ -517,7 +517,7 @@ public class SolverDPLLOptimized implements Solver {
 			if(!backtracking) {
 				//case of a fresh variable: start from val = 0
 				try {
-					//no pop on a HashSet. This selects the next variable randomly
+					//no pop on a HashSet. This selects the next variable with no guarantee on the order
 					var = VariablesLeft.iterator().next();
 					VariablesLeft.remove(var);
 				}catch(NoSuchElementException e) {
