@@ -639,15 +639,27 @@ public class SolverTwl implements Solver {
 					phi.getVariables().setVal(var, -1);
 					backtracking = true;
 					continue;
+				}			
+			}			
+		}		
+	}
+	
+	public String saveModel() {
+		String res = "";
+		if(this.getInterpretation() == null || this.getInterpretation().length == 0) {
+			res = "no model";
+			return res;
+		}else{
+			for(int i = 0;i<this.getInterpretation().length;i++) {
+				if(this.getInterpretation()[i] ==0) {
+					res+= "-" + (i+1) +" ";
+				}else {
+					res+= "" + (i+1)+ " ";
 				}
-				
-				
 			}
-			
 		}
-		
-
-
+		res += "0";
+		return res;
 	}
 
 }

@@ -1,12 +1,10 @@
 package solver;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import booleanFormula.CNF;
 import booleanFormula.CNFException;
-import sun.java2d.pipe.DrawImage;
 import tools.DimacsParser;
 import tools.Tools;
 
@@ -26,15 +24,18 @@ public class TestTwl {
 		ArrayList<CNF> bench_formulas = new ArrayList<CNF>();
 
 		try {
+			int cpt = 0;
 			for(String filename : benchmark) {
 				CNF phi = DimacsParser.CNFfromDIMACS2(filename);
+				Tools.DimacsFromCNF(phi, cpt +"", "");
+				cpt++;
 				bench_formulas.add(phi);
 			}
 		} catch (CNFException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		long start_time = System.nanoTime();
 		int cpt = -1;
 		int abd1 = 0;
@@ -83,6 +84,7 @@ public class TestTwl {
 		System.out.println("Nombre de formule abandonn�e : " + abd1);
 		System.out.println("temps total twl = " + elapsed_time2/1000000 + " ms");
 		System.out.println("Nombre de formule abandonn�e : " + abd2);
+
 	}
 
 }

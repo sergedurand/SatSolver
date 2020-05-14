@@ -16,7 +16,7 @@ public class DPLLOptiJar {
 		String destname = args[1];
 		SolverDPLLOptimized s = new SolverDPLLOptimized();
 		CNF phi = DimacsParser.CNFfromDIMACS2(filename);
-		boolean res = s.solve(phi, Integer.MAX_VALUE);
+		boolean res = s.solve3(phi, Integer.MAX_VALUE);
 		if(res) {
 			System.out.println("SAT");
 		}else {
@@ -32,7 +32,6 @@ public class DPLLOptiJar {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 
 }
