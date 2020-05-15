@@ -380,6 +380,8 @@ public class CNF {
 			Iterator<Integer> it = this.clauses.get(cl_id).getLiterals().iterator();
 			int l1 = it.next();
 			int l2 = it.next();
+			int[] watches = {l1,l2};
+			this.clauses.get(cl_id).setWatches(watches);
 			this.watched_literals[l1].addClause(cl_id);
 			this.watched_literals[l2].addClause(cl_id);
 		}

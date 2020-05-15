@@ -19,6 +19,7 @@ public class Clause {
 	private Set<Integer> literals = new HashSet<Integer>();
 	private Set<Integer> activeLiterals = new HashSet<Integer>();
 	private Set<Integer> unactiveLiterals = new HashSet<Integer>();
+	private int[] watches = new int[2];
 	
 	private static int count = 0;
 	private int id;
@@ -27,6 +28,7 @@ public class Clause {
 	public Clause() {
 		super();
 		this.id = count++;
+		watches = new int[2];
 	}
 	public Clause(Set<Integer> literals) {
 		super();
@@ -199,5 +201,11 @@ public class Clause {
 	
 	public boolean hasLit(int lit_id) {
 		return this.literals.contains(lit_id);
+	}
+	public int[] getWatches() {
+		return watches;
+	}
+	public void setWatches(int[] watches) {
+		this.watches = watches;
 	}
 }

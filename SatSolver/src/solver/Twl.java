@@ -14,7 +14,7 @@ public class Twl {
 		// TODO Auto-generated method stub
 		String filename = args[0];
 		String destname = args[1];
-		SolverTwl s = new SolverTwl();
+		SolverTwlHeuristics s = new SolverTwlHeuristics();
 		CNF phi = DimacsParser.CNFfromDIMACS2(filename);
 		boolean res = s.solve(phi, Integer.MAX_VALUE);
 		if(res) {
