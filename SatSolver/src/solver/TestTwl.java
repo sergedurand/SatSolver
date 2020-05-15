@@ -15,7 +15,7 @@ public class TestTwl {
 		SolverTwlHeuristics s = new SolverTwlHeuristics();
 		CNF phi = DimacsParser.CNFfromDIMACS2("./SAT/ais12.cnf");
 		long start = System.nanoTime();
-		s.solve(phi, 5);
+		System.out.println(s.solve2(phi, 25,6000));
 		long elapsed = (System.nanoTime()-start)/1000000;
 		System.out.println(elapsed + " ms");
 		

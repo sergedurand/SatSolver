@@ -420,4 +420,15 @@ public class CNF {
 		this.watched_literals = watched_literals;
 	}
 	
+	public int getNbEmpty(int var) throws CNFException {
+		int res = 0;
+		for(int cl_id : this.getVariables().getClauses()[var]) {
+			Clause c = this.clauses.get(cl_id);
+			if(c.clauseSituation() == 0){
+				res ++;
+			}
+		}
+		return res;
+	}
+	
 }

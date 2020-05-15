@@ -10,6 +10,7 @@ import java.util.Set;
 import booleanFormula.CNF;
 import booleanFormula.CNFException;
 import booleanFormula.Clause;
+import tools.Tools;
 /**
  * Heuristic studied : Prioritizing variable that cause the most conflicts.
  * We considered them priority if the number of conflict they cause is above some threshold
@@ -272,6 +273,7 @@ public class SolverTwlHeuristics implements Solver {
 					for(int l : LearnedFinal) {
 						var_temp = phi.getLiterals()[l].getId();
 						phi.getVariables().setVal(var_temp, -1);
+						VariablesLeft.add(var_temp);
 					}
 					phi.getVariables().setVal(var, -1);
 					backtracking = true;
@@ -469,7 +471,7 @@ public class SolverTwlHeuristics implements Solver {
 			return false;
 		}
 		
-		int priority_thresh = phi.getClauses().size()/23;
+		int priority_thresh = phi.getClauses().size()/10;
 		phi.initWatchedLiterals();//since we got rid of unit clauses we're sure all active clauses are watched by 2 literals
 		LinkedList<Integer> temp = phi.getUnassigned();
 		Collections.shuffle(temp);
@@ -526,7 +528,7 @@ public class SolverTwlHeuristics implements Solver {
 					}else {
 						var = VariablesLeft.iterator().next();
 						VariablesLeft.remove(var);
-					}	
+					}
 				}
 				
 				val = 0;
@@ -583,6 +585,7 @@ public class SolverTwlHeuristics implements Solver {
 					for(int l : LearnedFinal) {
 						var_temp = phi.getLiterals()[l].getId();
 						phi.getVariables().setVal(var_temp, -1);
+						VariablesLeft.add(var_temp);
 					}
 					
 					phi.getVariables().setVal(var, 1);
