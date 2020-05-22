@@ -13,9 +13,9 @@ public class TestTwl {
 	public static void main(String[] args) throws CNFException, SolverTimeoutException {
 		// TODO Auto-generated method stub
 		SolverTwlHeuristics s = new SolverTwlHeuristics();
-		CNF phi = DimacsParser.CNFfromDIMACS2("./SAT/ais12.cnf");
+		CNF phi = DimacsParser.CNFfromDIMACS2("./HARD/bf1355-075.cnf");
 		long start = System.nanoTime();
-		System.out.println(s.solve2(phi, 25,6000));
+		System.out.println(s.solve2(phi, 4500,900));
 		long elapsed = (System.nanoTime()-start)/1000000;
 		System.out.println(elapsed + " ms");
 		
