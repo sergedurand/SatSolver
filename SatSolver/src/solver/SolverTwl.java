@@ -409,8 +409,11 @@ public class SolverTwl implements Solver {
 
 	@Override
 	public void printRes() {
-		// TODO Auto-generated method stub
-
+		if(this.solved) {
+			System.out.println("SAT");
+		}else {
+			System.out.println("UNSAT");
+		}
 	}
 
 
