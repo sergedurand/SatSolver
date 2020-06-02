@@ -238,6 +238,8 @@ public class SolverTwl implements Solver {
 					for(int l : LearnedFinal) {
 						var_temp = phi.getLiterals()[l].getId();
 						phi.getVariables().setVal(var_temp, -1);
+						VariablesLeft.add(var_temp);
+
 					}
 					phi.getVariables().setVal(var, -1);
 					backtracking = true;
